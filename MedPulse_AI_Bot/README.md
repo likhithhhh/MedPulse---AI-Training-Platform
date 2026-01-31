@@ -1,4 +1,4 @@
-# 🩺 Vital_AI_Bot — AI Surgical Mentor
+# 🩺 MedPulse — AI Surgical Mentor
 
 Live Demos:
 
@@ -23,12 +23,12 @@ It provides instant, personalized answers to medical and surgical queries using 
 
 ## 🛠 Tech Stack
 
-- **Frontend (Vitals_WebApp):**
+- **Frontend (MedPulse_WebApp):**
   - HTML, CSS, JavaScript
   - Responsive UI/UX for mobile & desktop
   - Deployed on **Vercel** (Global Edge Network for fast delivery)
 
-- **Backend (Vitals_AI_Bot):**
+- **Backend (MedPulse_AI_Bot):**
   - Python (FastAPI Framework)
   - RESTful APIs with async support
   - Deployed on **Render** (auto-scaling cloud platform)
@@ -40,7 +40,7 @@ It provides instant, personalized answers to medical and surgical queries using 
   - Potential for integration with **LangChain / RAG (Retrieval-Augmented Generation)** for custom datasets
   - Scalable design → future plug-in for fine-tuned healthcare LLMs
 
-- **Simulation (Planned: Vitals_Unity_Simulation):**
+- **Simulation (Planned: MedPulse_Unity_Simulation):**
   - Unity 3D with VR integration
   - Support for immersive training modules
   - Future haptics & device compatibility

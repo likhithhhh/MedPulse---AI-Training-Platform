@@ -127,15 +127,15 @@
     
     <div class="flex items-center gap-3">
       <select id="userSelect" class="bg-[#3e3f4b] text-white px-3 py-2 rounded text-sm focus:outline-none">
-        <option value="ishaan">Ishaan</option>
-        <option value="jyotika">Jyotika</option>
+        <option value="Ishaan">Ishaan</option>
+        <option value="Jyothika">Jyothika</option>
       </select>
       
       <label class="relative">
         <input type="file" id="fileInput" multiple class="hidden">
         <div class="flex items-center bg-[#3e3f4b] hover:bg-[#4a4b58] text-white px-3 py-2 rounded text-sm cursor-pointer">
           <i class="fa-solid fa-paperclip mr-2"></i>
-          Upload
+          upload
         </div>
       </label>
     </div>
@@ -285,7 +285,7 @@
         const data = await res.json();
         appendMessage("assistant", data.reply);
       } catch (err) {
-        appendMessage("assistant", "❌ Error contacting MedMentor API");
+        appendMessage("assistant", "❌ Error contacting MedMentor AI API");
       } finally {
         setWaiting(false);
         document.getElementById("fileInput").value = ""; // Clear file input

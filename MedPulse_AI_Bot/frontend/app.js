@@ -1,4 +1,4 @@
-const API_BASE = "https://medimentor-0s1u.onrender.com/";
+const API_BASE = import.meta.env.VITE_API_URL;
 
 
 function appendMessage(role, text) {

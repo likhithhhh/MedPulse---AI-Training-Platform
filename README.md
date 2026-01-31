@@ -1,6 +1,6 @@
-VITALS — AI-Assisted VR Surgical Training Platform
+MedPulse — AI-Assisted VR Surgical Training Platform
 
-VITALS is a Unity-powered VR training platform designed to give medical students safe, repeatable, and hands-on practice for surgical procedures. Built for the Israel–India Hackathon (Hack4Help), VITALS puts immersive VR simulations at the center and pairs them with a companion web app and an AI Surgical Mentor for step-wise guidance, questions, and feedback.
+MedPulse is a Unity-powered VR training platform designed to give medical students safe, repeatable, and hands-on practice for surgical procedures. Built for the Israel–India Hackathon (Hack4Help), MedPulse puts immersive VR simulations at the center and pairs them with a companion web app and an AI Surgical Mentor for step-wise guidance, questions, and feedback.
 
 Live Demos:
 
@@ -16,7 +16,7 @@ VIDEO DEMO - https://youtu.be/WxPbSelgTWY?si=HzvrkJzdvNcQ7JHr
 
 Modern medical students face a huge challenge — theory-heavy learning with minimal hands-on surgical exposure. Cadaver training is limited, expensive, and often unavailable. Students enter hospitals underprepared, impacting confidence and patient safety.
 
-VITALS bridges this gap by offering:
+MedPulse bridges this gap by offering:
 
 Unity-based VR simulator (core): immersive, step-wise surgical practice in a safe, repeatable environment.
 
@@ -49,7 +49,7 @@ VR headset compatibility: Meta Quest, HTC Vive, etc.
 
 Planned: Haptics & device integrations
 
-Frontend (Vitals_WebApp)
+Frontend (MedPulse_WebApp)
 
 React 18 + Vite (fast dev/build)
 
@@ -57,7 +57,7 @@ Tailwind CSS (utility-first responsive UI)
 
 Hosting: Vercel (edge network)
 
-Backend (Vitals_AI_Bot)
+Backend (MedPulse_Bot)
 
 Python (FastAPI) with async REST APIs
 
@@ -87,12 +87,12 @@ git clone https://github.com/Ishaan0709/VITALS.git
 cd VITALS
 
 2) Run AI Bot (Backend)
-cd Vitals_AI_Bot
+cd MedPulse_Bot
 pip install -r requirements.txt
 uvicorn main:app --reload
 
 3) Run WebApp (Frontend)
-cd ../Vitals_WebApp
+cd ../MedPulse_WebApp
 npm install
 npm run dev
 
@@ -101,8 +101,8 @@ cd ../Vitals_Unity_Simulation
 
 📦 Deployment
 
-Frontend (Vitals_WebApp): Vercel
+Frontend (MedPulse_WebApp): Vercel
 
-Backend (Vitals_AI_Bot): Render
+Backend (MedPulse_Bot): Render
 
 Simulation: Unity builds (WebGL / Standalone / Mobile VR)

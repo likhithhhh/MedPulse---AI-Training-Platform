@@ -1,7 +1,9 @@
 from fastapi import FastAPI, UploadFile, File, Form
+from dotenv import load_dotenv
+load_dotenv()
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List
-from backend.chat_core import generate_reply, USER_DATA, generate_performance_report
+from chat_core import generate_reply, USER_DATA, generate_performance_report
 import uvicorn
 
 app = FastAPI()
@@ -32,7 +34,7 @@ def profile(user_id: str):
 
 @app.get("/")
 def health():
-    return {"message": "MedMentor API is live"}
+    return {"message": "MedMentor AI API is live"}
 import time
 
 @app.on_event("startup")

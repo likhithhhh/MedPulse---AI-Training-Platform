@@ -5,7 +5,7 @@ import { auth } from "../firebase";
 
 export default function Dashboard({ onStartSimulation ,onLogout}) {
   const [user] = useState({
-    name: "Abhi",
+    name: "Siva",
     id: "102303792",
     progress: 38
   });
@@ -34,8 +34,8 @@ export default function Dashboard({ onStartSimulation ,onLogout}) {
                 <Activity className="text-white" size={20} />
               </div>
               <div>
-                <div className="text-gray-900 text-xl font-bold">Medical Simulation</div>
-                <div className="text-gray-500 text-sm">Advanced Training Platform</div>
+                <div className="text-gray-900 text-xl font-bold">MedPulse</div>
+                <div className="text-gray-500 text-sm">Advanced Medical Training Platform</div>
               </div>
             </div>
           </div>

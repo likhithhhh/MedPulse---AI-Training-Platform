@@ -10,7 +10,7 @@ import csv
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("MedMentor")
+logger = logging.getLogger("MedMentor AI")
 
 # Load environment
 load_dotenv()
@@ -20,7 +20,7 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 # Enhanced user data storage
 USER_DATA = {
-    "ishaan": {
+    "Ishaan": {
         "name": "Ishaan",
         "college": "AIIMS Delhi",
         "specialization": "Cardiothoracic Surgery",
@@ -34,8 +34,8 @@ USER_DATA = {
         "weak_areas": ["artery clamping", "anastomosis techniques"],
         "recent_simulations": ["CABG", "Valve Repair", "Aortic Reconstruction"]
     },
-    "jyotika": {
-        "name": "Jyotika",
+    "Jyothika": {
+        "name": "Jyothika",
         "college": "CMC Vellore",
         "specialization": "Neurosurgery",
         "simulations_completed": 5,

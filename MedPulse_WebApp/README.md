@@ -1,4 +1,4 @@
-🩺 Vitals_WebApp — AI Surgical Mentor & VR Simulator
+🩺 MedPulse_WebApp — AI Surgical Mentor & VR Simulator
 
 Live Demos:
 
@@ -34,13 +34,13 @@ Students can register/login, chat with a medical AI assistant, track performance
 
 ## 🛠 Tech Stack
 
-- **Frontend (Vitals_WebApp):**
+- **Frontend (MedPulse_WebApp):**
   - React 18 + Vite ⚡ — Ultra-fast build & dev environment
   - Tailwind CSS 🎨 — Utility-first, responsive design for sleek UI
   - Responsive layout optimized for both desktop & mobile
   - Deployed on **Vercel** (global edge network, zero-config CI/CD)
 
-- **Backend (Vitals_AI_Bot):**
+- **Backend (MedPulse_AI_Bot):**
   - Python (FastAPI) 🚀 — Async-first, lightweight & high-performance APIs
   - RESTful endpoints for chatbot queries
   - Secure environment variables management
@@ -54,7 +54,7 @@ Students can register/login, chat with a medical AI assistant, track performance
   - Extendable to **LangChain + Vector DB (RAG)** for knowledge grounding
   - Future-ready for **fine-tuned healthcare LLMs**
 
-- **VR Simulation (Vitals_Unity_Simulation — Planned):**
+- **VR Simulation (MedPulse_Unity_Simulation — Planned):**
   - Unity 3D + WebGL 🌐 — Immersive, browser-ready simulations
   - VR headset compatibility (Meta Quest, HTC Vive, etc.)
   - Future haptics & device support for surgical realism

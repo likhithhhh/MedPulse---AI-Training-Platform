@@ -64,7 +64,7 @@ export default function MedicalSimulationApp() {
 // Dashboard Component
 function Dashboard({ onStartSimulation }) {
   const [user] = useState({
-    name: "Abhi",
+    name: "Siva",
     id: "102303792",
     progress: 38
   });
@@ -354,7 +354,7 @@ function Dashboard({ onStartSimulation }) {
 // SimulationSelector Component
 function SimulationSelector({ onBackToDashboard, onSelectSimulation }) {
   const [user] = useState({
-    name: "Abhi",
+    name: "Siva",
     id: "102303792",
     progress: 38
   });
@@ -674,7 +674,7 @@ function SimulationSelector({ onBackToDashboard, onSelectSimulation }) {
 // SimulationView Component
 function SimulationView({ simulation, onBackToSelector }) {
   const [user] = useState({
-    name: "Abhi",
+    name: "Siva",
     id: "102303792",
     progress: 38
   });
