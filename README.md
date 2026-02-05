@@ -6,7 +6,7 @@ Live Demos:
 
 VIDEO DEMO - https://youtu.be/WxPbSelgTWY?si=HzvrkJzdvNcQ7JHr
 
-🌐 Main Website: https://final-med.vercel.app
+🌐 Main Website: https://med-pulse-ai-training-platform.vercel.app
 
 🤖 AI Chatbot: https://medimentor-two.vercel.app
 
@@ -83,8 +83,8 @@ Git for version control & collaboration
 
 🚀 How to Run Locally
 1) Clone Repository
-git clone https://github.com/Ishaan0709/VITALS.git
-cd VITALS
+git clone https://github.com/likhithhhh/MedPulse---AI-Training-Platform.git
+cd MedPulse
 
 2) Run AI Bot (Backend)
 cd MedPulse_Bot

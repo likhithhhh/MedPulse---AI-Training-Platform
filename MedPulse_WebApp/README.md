@@ -2,7 +2,7 @@
 
 Live Demos:
 
-🌐 Main Website: https://final-med.vercel.app
+🌐 Main Website: https://med-pulse-ai-training-platform.vercel.app
 
 🤖 AI Chatbot: https://medimentor-two.vercel.app
 
@@ -75,8 +75,8 @@ Render (Backend API)
 
 🚀 Run Locally
 1️⃣ Clone Repository
-git clone https://github.com/Ishaan0709/Medimentor.git
-cd Medimentor
+git clone https://github.com/likhithhhh/MedPulse---AI-Training-Platform.git
+cd MedPulse
 
 2️⃣ Backend Setup
 cd backend
@@ -90,7 +90,7 @@ npm run dev
 
 🌐 Deployment Links
 
-Main Website: https://final-med.vercel.app
+Main Website: https://med-pulse-ai-training-platform.vercel.app
 
 AI Chatbot: https://medimentor-two.vercel.app
 

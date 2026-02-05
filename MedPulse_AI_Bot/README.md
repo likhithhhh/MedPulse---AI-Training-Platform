@@ -2,7 +2,7 @@
 
 Live Demos:
 
-🌐 Main Website: https://final-med.vercel.app
+🌐 Main Website: https://med-pulse-ai-training-platform.vercel.app
 
 🤖 AI Chatbot: https://medimentor-two.vercel.app
 
@@ -58,8 +58,8 @@ It provides instant, personalized answers to medical and surgical queries using 
 
 ### 1. Clone Repository
 ```bash
-git clone https://github.com/Ishaan0709/Medimentor.git
-cd Medimentor
+git https://github.com/likhithhhh/MedPulse---AI-Training-Platform.git
+cd MedPulse
 
 - Backend Setup
 cd backend
