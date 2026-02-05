@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { signOut } from "firebase/auth";
+import { useState, useEffect } from "react";
+import { signOut, onAuthStateChanged } from "firebase/auth";
 import { auth } from "../firebase"; 
 import { 
   User, 
@@ -31,6 +31,24 @@ import {
 export default function MedicalSimulationApp() {
   const [currentView, setCurrentView] = useState('dashboard'); // 'dashboard', 'selector', 'simulation'
   const [selectedSimulation, setSelectedSimulation] = useState(null);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) {
+        setUser({
+          name: currentUser.displayName || currentUser.email,
+          email: currentUser.email,
+          id: currentUser.uid,
+          progress: 0
+        });
+      } else {
+        setUser(null);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const handleStartSimulation = () => {
     setCurrentView('selector');
@@ -53,22 +71,16 @@ export default function MedicalSimulationApp() {
 
   switch(currentView) {
     case 'selector':
-      return <SimulationSelector onBackToDashboard={handleBackToDashboard} onSelectSimulation={handleSimulationSelect} />;
+      return <SimulationSelector user={user} onBackToDashboard={handleBackToDashboard} onSelectSimulation={handleSimulationSelect} />;
     case 'simulation':
-      return <SimulationView simulation={selectedSimulation} onBackToSelector={handleBackToSelector} />;
+      return <SimulationView user={user} simulation={selectedSimulation} onBackToSelector={handleBackToSelector} />;
     default:
-      return <Dashboard onStartSimulation={handleStartSimulation} />;
+      return <Dashboard user={user} onStartSimulation={handleStartSimulation} />;
   }
 }
 
 // Dashboard Component
-function Dashboard({ onStartSimulation }) {
-  const [user] = useState({
-    name: "Siva",
-    id: "102303792",
-    progress: 38
-  });
-
+function Dashboard({ user, onStartSimulation }) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
       {/* Modern Header */}
@@ -81,8 +93,8 @@ function Dashboard({ onStartSimulation }) {
                 <Activity className="text-white" size={20} />
               </div>
               <div>
-                <div className="text-gray-900 text-xl font-bold">Medical Simulation</div>
-                <div className="text-gray-500 text-sm">Advanced Training Platform</div>
+                <div className="text-gray-900 text-xl font-bold">MedPulse</div>
+                <div className="text-gray-500 text-sm">Smart Medical Training Platform</div>
               </div>
             </div>
           </div>
@@ -95,21 +107,21 @@ function Dashboard({ onStartSimulation }) {
                 <BarChart3 className="text-blue-600" size={16} />
                 <div className="text-sm">
                   <span className="text-gray-600">Sessions:</span>
-                  <span className="font-bold text-blue-600 ml-1">12</span>
+                  <span className="font-bold text-blue-600 ml-1">45</span>
                 </div>
               </div>
               <div className="bg-emerald-50 border border-emerald-100 rounded-full px-4 py-2 flex items-center space-x-2">
                 <Star className="text-emerald-600" size={16} />
                 <div className="text-sm">
                   <span className="text-gray-600">Score:</span>
-                  <span className="font-bold text-emerald-600 ml-1">4.2</span>
+                  <span className="font-bold text-emerald-600 ml-1">9.7</span>
                 </div>
               </div>
               <div className="bg-amber-50 border border-amber-100 rounded-full px-4 py-2 flex items-center space-x-2">
                 <Trophy className="text-amber-600" size={16} />
                 <div className="text-sm">
                   <span className="text-gray-600">Rank:</span>
-                  <span className="font-bold text-amber-600 ml-1">#15</span>
+                  <span className="font-bold text-amber-600 ml-1">#9</span>
                 </div>
               </div>
             </div>
@@ -135,7 +147,7 @@ function Dashboard({ onStartSimulation }) {
                         className="text-indigo-500"
                         stroke="currentColor"
                         strokeWidth="2"
-                        strokeDasharray={`${user.progress}, 100`}
+                        strokeDasharray={`${user?.progress ?? 0}, 100`}
                         strokeLinecap="round"
                         fill="none"
                         d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
@@ -143,12 +155,12 @@ function Dashboard({ onStartSimulation }) {
                     </svg>
                   </div>
                   <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 bg-indigo-500 text-white text-xs px-2 py-1 rounded-full font-bold shadow-sm">
-                    {user.progress}%
+                    {user?.progress ?? 0}%
                   </div>
                 </div>
                 <div>
-                  <div className="font-bold text-lg text-gray-900">{user.name}</div>
-                  <div className="text-gray-500 text-sm">Roll No - {user.id}</div>
+                  <div className="font-bold text-lg text-gray-900">{user?.name}</div>
+                  <div className="text-gray-500 text-sm">Roll No - {user?.id}</div>
                   <div className="text-gray-400 text-xs flex items-center mt-1">
                     <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
                     Online • Medical Student
@@ -171,7 +183,7 @@ function Dashboard({ onStartSimulation }) {
           
           {/* Welcome Section */}
           <div className="text-center mb-16">
-            <h1 className="text-5xl font-bold text-gray-900 mb-4">Welcome back, {user.name}! 👋</h1>
+            <h1 className="text-5xl font-bold text-gray-900 mb-4">Welcome back, {user?.name || "there"}! 👋</h1>
             <p className="text-xl text-gray-600">Ready to continue your medical training journey?</p>
           </div>
 
@@ -352,13 +364,7 @@ function Dashboard({ onStartSimulation }) {
 }
 
 // SimulationSelector Component
-function SimulationSelector({ onBackToDashboard, onSelectSimulation }) {
-  const [user] = useState({
-    name: "Siva",
-    id: "102303792",
-    progress: 38
-  });
-
+function SimulationSelector({ user, onBackToDashboard, onSelectSimulation }) {
   const [selectedSimulation, setSelectedSimulation] = useState(null);
 
   const simulations = [
@@ -526,12 +532,12 @@ function SimulationSelector({ onBackToDashboard, onSelectSimulation }) {
                     <User className="text-white" size={20} />
                   </div>
                   <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 bg-indigo-500 text-white text-xs px-2 py-1 rounded-full font-bold shadow-sm">
-                    {user.progress}%
+                    {user?.progress ?? 0}%
                   </div>
                 </div>
                 <div>
-                  <div className="font-bold text-lg text-gray-900">{user.name}</div>
-                  <div className="text-gray-500 text-sm">Roll No - {user.id}</div>
+                  <div className="font-bold text-lg text-gray-900">{user?.name}</div>
+                  <div className="text-gray-500 text-sm">Roll No - {user?.id}</div>
                 </div>
               </div>
             </div>
@@ -672,18 +678,12 @@ function SimulationSelector({ onBackToDashboard, onSelectSimulation }) {
 }
 
 // SimulationView Component
-function SimulationView({ simulation, onBackToSelector }) {
-  const [user] = useState({
-    name: "Siva",
-    id: "102303792",
-    progress: 38
-  });
-
+function SimulationView({ user, simulation, onBackToSelector }) {
   const [isLoading, setIsLoading] = useState(true);
   const [loadingProgress, setLoadingProgress] = useState(0);
 
   // Simulate loading progress
-  useState(() => {
+  useEffect(() => {
     const interval = setInterval(() => {
       setLoadingProgress(prev => {
         if (prev >= 100) {
@@ -751,7 +751,7 @@ function SimulationView({ simulation, onBackToSelector }) {
           <div className="flex items-center space-x-6">
             <div className="flex items-center space-x-4">
               <div className="text-right">
-                <div className="text-white text-sm font-medium">{user.name}</div>
+                <div className="text-white text-sm font-medium">{user?.name || "Guest"}</div>
                 <div className="text-gray-400 text-xs">Session Active</div>
               </div>
               <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center">

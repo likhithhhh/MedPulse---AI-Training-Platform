@@ -1,14 +1,31 @@
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import { User, Play, Bot, TrendingUp, Trophy, Clock, Star, MessageCircle, BarChart3, Activity, Target ,LogOut} from "lucide-react";
 import { signOut } from "firebase/auth";
 import { auth } from "../firebase"; 
+import { onAuthStateChanged } from "firebase/auth";
+import ProjectInfoCard from "./ProjectInfoCard";
+
 
 export default function Dashboard({ onStartSimulation ,onLogout}) {
-  const [user] = useState({
-    name: "Siva",
-    id: "102303792",
-    progress: 38
+  const [user, setUser] = useState(null);
+
+useEffect(() => {
+  const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    if (currentUser) {
+      setUser({
+        name: currentUser.displayName || currentUser.email,
+        email: currentUser.email,
+        id: currentUser.uid,
+        progress: 0
+      });
+    } else {
+      setUser(null);
+    }
   });
+
+  return () => unsubscribe();
+}, []);
+
 
   const handleLogout = async () => {
     try {
@@ -35,7 +52,7 @@ export default function Dashboard({ onStartSimulation ,onLogout}) {
               </div>
               <div>
                 <div className="text-gray-900 text-xl font-bold">MedPulse</div>
-                <div className="text-gray-500 text-sm">Advanced Medical Training Platform</div>
+                <div className="text-gray-500 text-sm">Smart Medical Training Platform</div>
               </div>
             </div>
           </div>
@@ -48,21 +65,21 @@ export default function Dashboard({ onStartSimulation ,onLogout}) {
       <BarChart3 className="text-blue-600" size={16} />
       <div className="text-sm">
         <span className="text-gray-600">Sessions:</span>
-        <span className="font-bold text-blue-600 ml-1">12</span>
+        <span className="font-bold text-blue-600 ml-1">45</span>
       </div>
     </div>
     <div className="bg-emerald-50 border border-emerald-100 rounded-full px-4 py-2 flex items-center space-x-2">
       <Star className="text-emerald-600" size={16} />
       <div className="text-sm">
         <span className="text-gray-600">Score:</span>
-        <span className="font-bold text-emerald-600 ml-1">4.2</span>
+        <span className="font-bold text-emerald-600 ml-1">9.7</span>
       </div>
     </div>
     <div className="bg-amber-50 border border-amber-100 rounded-full px-4 py-2 flex items-center space-x-2">
       <Trophy className="text-amber-600" size={16} />
       <div className="text-sm">
         <span className="text-gray-600">Rank:</span>
-        <span className="font-bold text-amber-600 ml-1">#15</span>
+        <span className="font-bold text-amber-600 ml-1">#9</span>
       </div>
     </div>
   </div>
@@ -88,7 +105,7 @@ export default function Dashboard({ onStartSimulation ,onLogout}) {
               className="text-indigo-500"
               stroke="currentColor"
               strokeWidth="2"
-              strokeDasharray={`${user.progress}, 100`}
+              strokeDasharray={`${user?.progress ?? 0}, 100`}
               strokeLinecap="round"
               fill="none"
               d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
@@ -96,12 +113,12 @@ export default function Dashboard({ onStartSimulation ,onLogout}) {
           </svg>
         </div>
         <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 bg-indigo-500 text-white text-xs px-2 py-1 rounded-full font-bold shadow-sm">
-          {user.progress}%
+          {user?.progress ?? 0}%
         </div>
       </div>
       <div>
-        <div className="font-bold text-lg text-gray-900">{user.name}</div>
-        <div className="text-gray-500 text-sm">Roll No - {user.id}</div>
+        <div className="font-bold text-lg text-gray-900">{user?.name}</div>
+        <div className="text-gray-500 text-sm">Roll No - {user?.id}</div>
         <div className="text-gray-400 text-xs flex items-center mt-1">
           <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
           Online • Medical Student
@@ -133,9 +150,12 @@ export default function Dashboard({ onStartSimulation ,onLogout}) {
           
           {/* Welcome Section */}
           <div className="text-center mb-16">
-            <h1 className="text-5xl font-bold text-gray-900 mb-4">Welcome back, {user.name}! 👋</h1>
+            <h1 className="text-5xl font-bold text-gray-900 mb-4">Welcome back, {user?.name || "there"}! 👋</h1>
             <p className="text-xl text-gray-600">Ready to continue your medical training journey?</p>
           </div>
+
+          <ProjectInfoCard />
+
 
           {/* Progress Overview Section */}
           <section className="bg-white/70 backdrop-blur-sm rounded-3xl shadow-sm border border-gray-200/50 p-8">

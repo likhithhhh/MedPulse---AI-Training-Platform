@@ -47,7 +47,7 @@ const handleBackToSelector = () => {
   };
 
   const handleSignupSuccess = () => {
-    setIsLogin(true); // Switch to login form after successful signup
+    setCurrentPage('dashboard'); // Auto-login: go straight to dashboard
   };
 
   const handleForgotPassword = () => {
@@ -100,44 +100,71 @@ if (currentPage === 'simulationView') {
 
   // Default auth page
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
-      <div className="flex flex-col md:flex-row w-full max-w-5xl bg-white rounded-lg shadow-lg overflow-hidden">
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-amber-50 via-slate-50 to-teal-50 p-6 flex items-center justify-center font-['Space_Grotesk']">
+      <div className="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-gradient-to-br from-teal-200 to-cyan-200 opacity-60 blur-2xl animate-[floatSoft_10s_ease-in-out_infinite]"></div>
+      <div className="absolute -bottom-28 -left-16 w-80 h-80 rounded-full bg-gradient-to-br from-orange-200 to-amber-200 opacity-70 blur-2xl animate-[floatSoft_12s_ease-in-out_infinite]"></div>
+
+      <div className="relative flex flex-col md:flex-row w-full max-w-6xl bg-white/80 backdrop-blur-xl rounded-3xl shadow-[0_30px_60px_-25px_rgba(0,0,0,0.35)] border border-white/70 overflow-hidden animate-[fadeUp_0.6s_ease]">
         
         {/* Left Panel */}
-        <div className="md:w-1/2 bg-blue-50 flex flex-col justify-center items-start p-12">
-          <h1 className="text-4xl font-bold mb-4">
+        <div className="md:w-1/2 relative bg-gradient-to-br from-teal-600 via-cyan-600 to-sky-500 text-white flex flex-col justify-between p-12">
+          <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.4),transparent_55%)]"></div>
+          <div className="absolute -right-20 top-10 h-52 w-52 rounded-full bg-white/20 blur-2xl"></div>
+          <div className="relative">
+            <div className="inline-flex items-center rounded-full bg-white/20 px-4 py-1 text-xs uppercase tracking-widest mb-6">
+              MedPulse Platform
+            </div>
+            <h1 className="text-4xl md:text-5xl font-['Fraunces'] font-bold mb-4 leading-tight">
             {showForgotPassword ? "Reset Password" : "Welcome Back!"}
           </h1>
-          <p className="text-lg">
+          <p className="text-lg text-white/90">
             {showForgotPassword ? "Enter your email to reset" : "Access your"}
           </p>
-          <p className="text-lg font-semibold">
+          <p className="text-lg font-semibold text-white/90">
             {showForgotPassword ? "your password" : "Medical Simulation and Progress"}
           </p>
+          </div>
           
           {!showForgotPassword && (
-            <div className="mt-8 flex space-x-4">
+            <div className="relative mt-10 flex flex-wrap gap-3">
               <button
                 onClick={() => setIsLogin(true)}
-                className={`px-4 py-2 rounded-full ${isLogin ? 'bg-white text-black' : 'bg-blue-500 text-white'}`}
+                className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all ${
+                  isLogin
+                    ? 'bg-white text-slate-900 shadow-lg'
+                    : 'bg-white/15 text-white hover:bg-white/25'
+                }`}
               >
                 Log in
               </button>
               <button
                 onClick={() => setIsLogin(false)}
-                className={`px-4 py-2 rounded-full ${!isLogin ? 'bg-white text-black' : 'bg-blue-500 text-white'}`}
+                className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all ${
+                  !isLogin
+                    ? 'bg-white text-slate-900 shadow-lg'
+                    : 'bg-white/15 text-white hover:bg-white/25'
+                }`}
               >
                 Sign up
               </button>
             </div>
           )}
+          <div className="relative mt-10 text-sm text-white/80">
+            Train with high‑fidelity cases, adaptive feedback, and patient‑safe practice.
+          </div>
         </div>
 
         {/* Right Panel */}
-        <div className="md:w-1/2 p-8 flex flex-col">
-          <h2 className="text-2xl font-semibold mb-4 text-center">
+        <div className="md:w-1/2 p-8 md:p-12 flex flex-col">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl md:text-3xl font-semibold text-slate-900">
             {showForgotPassword ? "Forgot Password" : isLogin ? "Log In" : "Sign Up"}
           </h2>
+            <div className="hidden md:flex items-center gap-2 text-xs text-slate-500">
+              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+              Secure access
+            </div>
+          </div>
 
           {showForgotPassword ? (
             <ForgotPasswordForm onBackToLogin={handleBackToLogin} />
@@ -150,7 +177,11 @@ if (currentPage === 'simulationView') {
                     handleFacebook={() => handleProviderLogin(facebookProvider)}
                     handleGuest={handleGuestAccess}
                   />
-                  <div className="text-center text-gray-400 my-4">or</div>
+                  <div className="flex items-center gap-4 my-6 text-slate-400 text-sm">
+                    <div className="h-px flex-1 bg-slate-200"></div>
+                    or
+                    <div className="h-px flex-1 bg-slate-200"></div>
+                  </div>
                 </>
               )}
 
@@ -163,18 +194,18 @@ if (currentPage === 'simulationView') {
                 <SignupForm onSignupSuccess={handleSignupSuccess} />
               )}
 
-              <div className="text-center mt-4 text-sm text-gray-600">
+              <div className="text-center mt-6 text-sm text-slate-600">
                 {isLogin ? (
                   <>
                     Don't have an account?{" "}
-                    <button onClick={() => setIsLogin(false)} className="text-blue-500 hover:underline">
+                    <button onClick={() => setIsLogin(false)} className="text-teal-600 hover:text-teal-700 font-semibold">
                       Sign up.
                     </button>
                   </>
                 ) : (
                   <>
                     Already have an account?{" "}
-                    <button onClick={() => setIsLogin(true)} className="text-blue-500 hover:underline">
+                    <button onClick={() => setIsLogin(true)} className="text-teal-600 hover:text-teal-700 font-semibold">
                       Log in.
                     </button>
                   </>

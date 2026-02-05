@@ -28,40 +28,40 @@ export default function SignupForm({ onSignupSuccess }) {
 
   return (
     <form onSubmit={signup} className="space-y-4">
-      <div className="flex items-center border rounded px-3 py-2">
-        <FaUser className="text-gray-400" />
+      <div className="flex items-center border border-slate-200 rounded-xl px-3 py-2.5 bg-white/80 focus-within:ring-2 focus-within:ring-teal-500/40 focus-within:border-teal-400 transition">
+        <FaUser className="text-slate-400" />
         <input
           type="text"
           placeholder="Username"
           value={name}
           required
           onChange={(e) => setName(e.target.value)}
-          className="ml-2 w-full bg-transparent focus:outline-none"
+          className="ml-2 w-full bg-transparent focus:outline-none text-slate-700 placeholder:text-slate-400"
         />
       </div>
-      <div className="flex items-center border rounded px-3 py-2">
-        <FaEnvelope className="text-gray-400" />
+      <div className="flex items-center border border-slate-200 rounded-xl px-3 py-2.5 bg-white/80 focus-within:ring-2 focus-within:ring-teal-500/40 focus-within:border-teal-400 transition">
+        <FaEnvelope className="text-slate-400" />
         <input
           type="email"
           placeholder="Email Address"
           value={email}
           required
           onChange={(e) => setEmail(e.target.value)}
-          className="ml-2 w-full bg-transparent focus:outline-none"
+          className="ml-2 w-full bg-transparent focus:outline-none text-slate-700 placeholder:text-slate-400"
         />
       </div>
-      <div className="flex items-center border rounded px-3 py-2">
-        <FaLock className="text-gray-400" />
+      <div className="flex items-center border border-slate-200 rounded-xl px-3 py-2.5 bg-white/80 focus-within:ring-2 focus-within:ring-teal-500/40 focus-within:border-teal-400 transition">
+        <FaLock className="text-slate-400" />
         <input
           type="password"
           placeholder="Password"
           value={password}
           required
           onChange={(e) => setPassword(e.target.value)}
-          className="ml-2 w-full bg-transparent focus:outline-none"
+          className="ml-2 w-full bg-transparent focus:outline-none text-slate-700 placeholder:text-slate-400"
         />
       </div>
-      <button type="submit" className="w-full py-2 bg-green-500 text-white rounded hover:bg-green-600">
+      <button type="submit" className="w-full py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-xl font-semibold shadow-sm hover:shadow-md hover:from-emerald-600 hover:to-teal-600 transition">
         Sign Up
       </button>
     </form>
