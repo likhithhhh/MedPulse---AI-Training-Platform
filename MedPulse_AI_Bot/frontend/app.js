@@ -1,4 +1,4 @@
-const API_BASE = "https://medpulse-backend.onrender.com";
+const API_BASE = "https://medpulse-backend-rlay.onrender.com";
 
 
 function appendMessage(role, text) {
