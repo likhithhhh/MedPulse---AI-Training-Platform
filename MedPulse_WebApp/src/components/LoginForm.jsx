@@ -10,10 +10,10 @@ export default function LoginForm({ onForgotPassword, onLoginSuccess }) {
   const login = async (e) => {
     e.preventDefault();
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const cred = await signInWithEmailAndPassword(auth, email, password);
       alert("Logged in successfully!");
       if (onLoginSuccess) {
-        onLoginSuccess();
+        onLoginSuccess(cred?.user || auth.currentUser);
       }
     } catch (err) {
       alert(err.message);

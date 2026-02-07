@@ -1,30 +1,14 @@
-import { useState,useEffect } from "react";
-import { User, Play, Bot, TrendingUp, Trophy, Clock, Star, MessageCircle, BarChart3, Activity, Target ,LogOut} from "lucide-react";
+import { User, Play, Bot, TrendingUp, Trophy, Clock, Star, MessageCircle, BarChart3, Activity, Target } from "lucide-react";
 import { signOut } from "firebase/auth";
 import { auth } from "../firebase"; 
-import { onAuthStateChanged } from "firebase/auth";
 import ProjectInfoCard from "./ProjectInfoCard";
+import useAuthUser from "../hooks/useAuthUser";
+import { isAdminEmail } from "../constants/admin";
 
 
-export default function Dashboard({ onStartSimulation ,onLogout}) {
-  const [user, setUser] = useState(null);
-
-useEffect(() => {
-  const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-    if (currentUser) {
-      setUser({
-        name: currentUser.displayName || currentUser.email,
-        email: currentUser.email,
-        id: currentUser.uid,
-        progress: 0
-      });
-    } else {
-      setUser(null);
-    }
-  });
-
-  return () => unsubscribe();
-}, []);
+export default function Dashboard({ onStartSimulation, onLogout, onOpenAdmin, onOpenAssistant }) {
+  const { user } = useAuthUser();
+  const isAdmin = isAdminEmail(user?.email);
 
 
   const handleLogout = async () => {
@@ -51,14 +35,27 @@ useEffect(() => {
                 <Activity className="text-white" size={20} />
               </div>
               <div>
-                <div className="text-gray-900 text-xl font-bold">MedPulse</div>
-                <div className="text-gray-500 text-sm">Smart Medical Training Platform</div>
+                <div className="flex items-center space-x-2">
+                  <div className="text-gray-900 text-xl font-bold">Medical Simulation</div>
+                  <span className="text-[10px] uppercase tracking-wide bg-indigo-50 text-indigo-700 px-2 py-1 rounded-full font-semibold">
+                    Analytics
+                  </span>
+                </div>
+                <div className="text-gray-500 text-sm">User Performance Overview</div>
               </div>
             </div>
           </div>
           
           {/* Right Side - Enhanced User Profile */}
 <div className="flex items-center space-x-8">
+  {isAdmin && onOpenAdmin && (
+    <button
+      onClick={onOpenAdmin}
+      className="hidden lg:inline-flex items-center rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50 transition"
+    >
+      Admin Panel
+    </button>
+  )}
   {/* Quick Stats Pills */}
   <div className="hidden lg:flex items-center space-x-4">
     <div className="bg-blue-50 border border-blue-100 rounded-full px-4 py-2 flex items-center space-x-2">
@@ -87,47 +84,20 @@ useEffect(() => {
            {/* Main User Profile Card */}
   <div className="bg-gradient-to-r from-white to-gray-50 border border-gray-200 rounded-2xl px-6 py-3 shadow-sm">
     <div className="flex items-center space-x-4">
-      <div className="relative">
-        <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center shadow-md">
-          <User className="text-white" size={20} />
-        </div>
-        {/* Progress Ring */}
-        <div className="absolute -inset-1">
-          <svg className="w-14 h-14 transform -rotate-90" viewBox="0 0 36 36">
-            <path
-              className="text-gray-200"
-              stroke="currentColor"
-              strokeWidth="2"
-              fill="none"
-              d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-            />
-            <path
-              className="text-indigo-500"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeDasharray={`${user?.progress ?? 0}, 100`}
-              strokeLinecap="round"
-              fill="none"
-              d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-            />
-          </svg>
-        </div>
-        <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 bg-indigo-500 text-white text-xs px-2 py-1 rounded-full font-bold shadow-sm">
-          {user?.progress ?? 0}%
-        </div>
+      <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center shadow-md">
+        <User className="text-white" size={20} />
       </div>
       <div>
-        <div className="font-bold text-lg text-gray-900">{user?.name}</div>
-        <div className="text-gray-500 text-sm">Roll No - {user?.id}</div>
-        <div className="text-gray-400 text-xs flex items-center mt-1">
-          <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-          Online • Medical Student
+        <div className="font-bold text-lg text-gray-900">
+          {user?.displayName || user?.email || "User"}
         </div>
+        <div className="text-gray-500 text-sm">{user?.email || "No email available"}</div>
+        <div className="text-gray-400 text-xs mt-1">UID: {user?.uid || "Not available"}</div>
       </div>
       <div className="hidden sm:block text-right">
-        <div className="text-xs text-gray-400 mb-1">Progress</div>
-        <div className="text-sm font-semibold text-gray-700">Course Completion</div>
-        <div className="text-xs text-gray-400 mt-1">Active today</div>
+        <div className="text-xs text-gray-400 mb-1">Analytics</div>
+        <div className="text-sm font-semibold text-gray-700">User Performance</div>
+        <div className="text-xs text-gray-400 mt-1">Updated today</div>
       </div>
     </div>
   </div>
@@ -150,8 +120,10 @@ useEffect(() => {
           
           {/* Welcome Section */}
           <div className="text-center mb-16">
-            <h1 className="text-5xl font-bold text-gray-900 mb-4">Welcome back, {user?.name || "there"}! 👋</h1>
-            <p className="text-xl text-gray-600">Ready to continue your medical training journey?</p>
+            <h1 className="text-5xl font-bold text-gray-900 mb-4">
+              Welcome back, {user?.displayName || user?.email || "there"}! 👋
+            </h1>
+            <p className="text-xl text-gray-600">Here is your analytics snapshot for today.</p>
           </div>
 
           <ProjectInfoCard />
@@ -164,8 +136,8 @@ useEffect(() => {
                 <TrendingUp className="text-white" size={20} />
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">Progress Overview</h2>
-                <p className="text-gray-500 text-sm">Track your learning achievements</p>
+                <h2 className="text-2xl font-bold text-gray-900">Analytics Overview</h2>
+                <p className="text-gray-500 text-sm">Track performance and module outcomes</p>
               </div>
             </div>
             
@@ -229,8 +201,8 @@ useEffect(() => {
                 <BarChart3 className="text-white" size={20} />
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">Weekly Statistics</h2>
-                <p className="text-gray-500 text-sm">Your recent activity summary</p>
+                <h2 className="text-2xl font-bold text-gray-900">Engagement Metrics</h2>
+                <p className="text-gray-500 text-sm">Weekly activity and ratings</p>
               </div>
             </div>
             
@@ -307,23 +279,19 @@ useEffect(() => {
                 </div>
               </button>
 
-              <a
-  href="https://medimentor-two.vercel.app"
-  target="_blank"
-  rel="noopener noreferrer"
-  className="w-full lg:w-auto"
->
-  <button className="group bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-6 px-8 rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center space-x-4 min-w-80">
-    <div className="bg-white/20 rounded-2xl p-4 group-hover:bg-white/30 transition-all">
-      <Bot size={24} />
-    </div>
-    <div className="text-left">
-      <div className="text-xl font-bold">AI Study Assistant</div>
-      <div className="text-purple-100 text-sm">Get personalized help & guidance</div>
-      <div className="text-purple-200 text-xs mt-1">Ask questions, review concepts</div>
-    </div>
-  </button>
-</a>
+              <button
+                onClick={onOpenAssistant}
+                className="group bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-6 px-8 rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center space-x-4 min-w-80 w-full lg:w-auto"
+              >
+                <div className="bg-white/20 rounded-2xl p-4 group-hover:bg-white/30 transition-all">
+                  <Bot size={24} />
+                </div>
+                <div className="text-left">
+                  <div className="text-xl font-bold">AI Study Assistant</div>
+                  <div className="text-purple-100 text-sm">Get personalized help & guidance</div>
+                  <div className="text-purple-200 text-xs mt-1">Ask questions, review concepts</div>
+                </div>
+              </button>
 
             </div>
           </section>

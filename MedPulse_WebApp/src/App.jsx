@@ -1,25 +1,57 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import LoginForm from "./components/LoginForm";
 import SignupForm from "./components/SignupForm";
 import AuthButtons from "./components/AuthButtons";
 import ForgotPasswordForm from "./components/ForgotPasswordForm";
 import Dashboard from "./components/Dashboard";
-import SimulationSelector from "./components/SimulationSelector";
+import SimulationSelector, { SimulationView } from "./components/SimulationSelector";
+import AdminDashboard from "./pages/AdminDashboard";
+import ChatbotPage from "./components/ChatbotPage";
 import { auth, googleProvider, facebookProvider } from "./firebase";
 import { signInWithPopup } from "firebase/auth";
 import { signOut } from "firebase/auth";
+import { isAdminEmail } from "./constants/admin";
+import authVisual from "./assets/vr-surgical.png";
 
 export default function App() {
   const [selectedSimulation, setSelectedSimulation] = useState(null);
   const [isLogin, setIsLogin] = useState(true);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
-  const [currentPage, setCurrentPage] = useState('auth'); // 'auth', 'dashboard', 'simulation'
+  const [currentPage, setCurrentPage] = useState('auth'); // 'auth', 'dashboard', 'simulation', 'simulationView', 'admin', 'assistant'
+
+  useEffect(() => {
+    const applyPath = () => {
+      if (window.location.pathname === "/admin") {
+        setCurrentPage("admin");
+        return;
+      }
+
+      if (window.location.pathname === "/assistant") {
+        setCurrentPage("assistant");
+      }
+    };
+
+    applyPath();
+    window.addEventListener("popstate", applyPath);
+    return () => window.removeEventListener("popstate", applyPath);
+  }, []);
+
+  const goToDashboard = (user) => {
+    const email = user?.email || auth.currentUser?.email || "";
+    if (isAdminEmail(email)) {
+      window.history.pushState({}, "", "/admin");
+      setCurrentPage("admin");
+      return;
+    }
+    window.history.pushState({}, "", "/");
+    setCurrentPage("dashboard");
+  };
 
   const handleProviderLogin = async (provider) => {
     try {
-      await signInWithPopup(auth, provider);
+      const cred = await signInWithPopup(auth, provider);
       alert("Logged in successfully!");
-      setCurrentPage('dashboard');
+      goToDashboard(cred?.user || auth.currentUser);
     } catch (err) {
       alert(err.message);
     }
@@ -36,6 +68,7 @@ const handleBackToSelector = () => {
   try {
     await signOut(auth);
     alert("Logged out successfully!");
+    window.history.pushState({}, "", "/");
     setCurrentPage('auth'); // Return to auth page
   } catch (error) {
     alert("Error logging out: " + error.message);
@@ -43,11 +76,11 @@ const handleBackToSelector = () => {
 };
 
   const handleGuestAccess = () => {
-    setCurrentPage('dashboard');
+    goToDashboard();
   };
 
   const handleSignupSuccess = () => {
-    setCurrentPage('dashboard'); // Auto-login: go straight to dashboard
+    goToDashboard(); // Auto-login: go straight to dashboard
   };
 
   const handleForgotPassword = () => {
@@ -64,7 +97,17 @@ const handleBackToSelector = () => {
   };
 
   const handleBackToDashboard = () => {
-    setCurrentPage('dashboard');
+    goToDashboard();
+  };
+
+  const handleOpenAdmin = () => {
+    window.history.pushState({}, "", "/admin");
+    setCurrentPage("admin");
+  };
+
+  const handleOpenAssistant = () => {
+    window.history.pushState({}, "", "/assistant");
+    setCurrentPage("assistant");
   };
 
   // Render based on current page
@@ -83,17 +126,29 @@ if (currentPage === 'simulationView') {
     <SimulationView 
       simulation={selectedSimulation} 
       onBackToSelector={handleBackToSelector}
-      onLogout={handleLogout}
     />
   );
 }
 
+if (currentPage === 'admin') {
+  return (
+    <AdminDashboard onBackToDashboard={handleBackToDashboard} />
+  );
+}
+
+if (currentPage === 'assistant') {
+  return (
+    <ChatbotPage onBackToDashboard={handleBackToDashboard} />
+  );
+}
   
   if (currentPage === 'dashboard') {
   return (
     <Dashboard 
       onStartSimulation={handleStartSimulation} 
       onLogout={handleLogout} 
+      onOpenAdmin={handleOpenAdmin}
+      onOpenAssistant={handleOpenAssistant}
     />
   );
 }
@@ -107,8 +162,12 @@ if (currentPage === 'simulationView') {
       <div className="relative flex flex-col md:flex-row w-full max-w-6xl bg-white/80 backdrop-blur-xl rounded-3xl shadow-[0_30px_60px_-25px_rgba(0,0,0,0.35)] border border-white/70 overflow-hidden animate-[fadeUp_0.6s_ease]">
         
         {/* Left Panel */}
-        <div className="md:w-1/2 relative bg-gradient-to-br from-teal-600 via-cyan-600 to-sky-500 text-white flex flex-col justify-between p-12">
-          <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.4),transparent_55%)]"></div>
+        <div
+          className="md:w-1/2 relative text-white flex flex-col justify-between p-12 overflow-hidden"
+          style={{ backgroundImage: `url(${authVisual})`, backgroundSize: "cover", backgroundPosition: "center" }}
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-teal-700/85 via-cyan-700/80 to-sky-600/80"></div>
+          <div className="absolute inset-0 opacity-25 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.35),transparent_55%)]"></div>
           <div className="absolute -right-20 top-10 h-52 w-52 rounded-full bg-white/20 blur-2xl"></div>
           <div className="relative">
             <div className="inline-flex items-center rounded-full bg-white/20 px-4 py-1 text-xs uppercase tracking-widest mb-6">
@@ -188,7 +247,7 @@ if (currentPage === 'simulationView') {
               {isLogin ? (
                 <LoginForm 
                   onForgotPassword={handleForgotPassword} 
-                  onLoginSuccess={() => setCurrentPage('dashboard')}
+                  onLoginSuccess={goToDashboard}
                 />
               ) : (
                 <SignupForm onSignupSuccess={handleSignupSuccess} />

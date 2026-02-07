@@ -10,13 +10,13 @@ export default function ProjectInfoCard() {
           <Brain className="text-blue-600" size={22} />
         </div>
         <h2 className="text-xl font-semibold text-gray-800">
-          About MedPulse AI Training Platform
+          About Medical Simulation Platform
         </h2>
       </div>
 
       {/* Description */}
       <p className="text-gray-600 mb-6 leading-relaxed">
-        MedPulse is an AI-powered medical training and surgical simulation platform 
+        Medical Simulation is an AI-powered medical training and surgical simulation platform 
         built to help students practice procedures, improve clinical decisions, 
         and gain real-world experience in a safe virtual environment.  
         The platform combines intelligent AI guidance, immersive simulations, 

@@ -23,48 +23,48 @@
   </script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-    
+
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     }
-    
+
     body {
-      background-color: #343541;
+      background: radial-gradient(circle at top, #1f2430 0%, #14151b 55%, #0f1115 100%);
       color: #ececf1;
       overflow: hidden;
       height: 100vh;
     }
-    
+
     #chat {
       scrollbar-width: thin;
-      scrollbar-color: #4d4d4f #343541;
+      scrollbar-color: #4d4d4f #2a2b33;
     }
-    
+
     #chat::-webkit-scrollbar {
       width: 8px;
     }
-    
+
     #chat::-webkit-scrollbar-track {
-      background: #343541;
+      background: #2a2b33;
     }
-    
+
     #chat::-webkit-scrollbar-thumb {
       background-color: #4d4d4f;
       border-radius: 10px;
     }
-    
+
     .message-bubble {
       animation: fadeIn 0.3s ease-out;
     }
-    
+
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
     }
-    
+
     .typing-indicator span {
       display: inline-block;
       width: 8px;
@@ -73,144 +73,135 @@
       background-color: #8e8ea0;
       animation: bounce 1.3s infinite;
     }
-    
+
     .typing-indicator span:nth-child(2) {
       animation-delay: 0.2s;
     }
-    
+
     .typing-indicator span:nth-child(3) {
       animation-delay: 0.4s;
     }
-    
+
     @keyframes bounce {
       0%, 100% { transform: translateY(0); }
       50% { transform: translateY(-5px); }
     }
-    
+
     #prompt:focus {
       outline: none;
-      box-shadow: 0 0 0 2px rgba(16, 163, 127, 0.3);
+      box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.35);
     }
-    
-    .file-input-label:hover {
-      background-color: #3a3b45;
-    }
-    
-    .upload-btn {
-      transition: background-color 0.2s;
-    }
-    
-    .upload-btn:hover {
-      background-color: #0e8f6d;
-    }
-    
+
     .welcome-card {
       transition: all 0.3s ease;
       cursor: pointer;
     }
-    
+
     .welcome-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+      transform: translateY(-6px);
+      box-shadow: 0 15px 30px rgba(0,0,0,0.25);
     }
   </style>
 </head>
-<body class="flex flex-col h-screen bg-gpt-dark">
+<body class="flex flex-col h-screen">
   <!-- Header -->
-  <div class="flex items-center justify-between px-6 py-4 border-b border-gray-600 bg-[#202123]">
-    <div class="flex items-center gap-2">
-      <div class="w-10 h-10 rounded-md bg-gradient-to-r from-green-600 to-teal-500 flex items-center justify-center">
+  <header class="flex items-center justify-between px-6 py-4 border-b border-white/10 bg-[#161821]/95 backdrop-blur">
+    <div class="flex items-center gap-3">
+      <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center shadow-lg">
         <i class="fas fa-stethoscope text-white text-lg"></i>
       </div>
-      <h1 class="text-xl font-semibold text-white">MedMentor AI</h1>
+      <div>
+        <h1 class="text-xl font-semibold text-white">MedMentor AI</h1>
+        <p class="text-xs text-white/60">Clinical training companion</p>
+      </div>
     </div>
-    
+
     <div class="flex items-center gap-3">
-      <select id="userSelect" class="bg-[#3e3f4b] text-white px-3 py-2 rounded text-sm focus:outline-none">
+      <div class="hidden md:flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs text-white/70">
+        <i class="fa-solid fa-shield-halved text-emerald-400"></i>
+        Secure workspace
+      </div>
+      <select id="userSelect" class="bg-white/10 text-white px-3 py-2 rounded-lg text-sm focus:outline-none border border-white/10">
         <option value="Ishaan">Ishaan</option>
         <option value="Jyothika">Jyothika</option>
       </select>
-      
+
       <label class="relative">
         <input type="file" id="fileInput" multiple class="hidden">
-        <div class="flex items-center bg-[#3e3f4b] hover:bg-[#4a4b58] text-white px-3 py-2 rounded text-sm cursor-pointer">
+        <div class="flex items-center bg-white/10 hover:bg-white/20 text-white px-3 py-2 rounded-lg text-sm cursor-pointer border border-white/10">
           <i class="fa-solid fa-paperclip mr-2"></i>
-          upload
+          Upload
         </div>
       </label>
     </div>
-  </div>
-  
+  </header>
+
   <!-- Chat Container -->
-  <div id="chat" class="flex flex-col gap-6 overflow-y-auto flex-grow p-6">
+  <main id="chat" class="flex flex-col gap-6 overflow-y-auto flex-grow px-6 py-8">
     <!-- Welcome Message -->
-    <div class="max-w-3xl mx-auto mb-4">
-      <div class="flex items-start gap-4">
-        <div class="w-10 h-10 rounded-md bg-gradient-to-r from-purple-600 to-indigo-500 flex items-center justify-center shrink-0">
-          <i class="fas fa-robot text-white text-lg"></i>
-        </div>
-        <div class="bg-[#444654] p-5 rounded-lg">
-          <h2 class="text-xl font-bold mb-3 text-white">Medical Training Assistant</h2>
-          <p class="text-gray-300 mb-4">Upload surgical documents, slides, or case studies to receive personalized training recommendations.</p>
-          
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div class="welcome-card bg-gradient-to-br from-[#565869] to-[#3a3b45] rounded-lg p-4 flex flex-col items-center justify-center">
-              <i class="fas fa-file-pdf text-3xl mb-3 text-red-400"></i>
-              <span class="font-medium">Upload PDF/DOCX</span>
-              <p class="text-xs text-gray-400 mt-2 text-center">Case studies, surgical reports, or training materials</p>
-            </div>
-            <div class="welcome-card bg-gradient-to-br from-[#565869] to-[#3a3b45] rounded-lg p-4 flex flex-col items-center justify-center">
-              <i class="fas fa-images text-3xl mb-3 text-blue-400"></i>
-              <span class="font-medium">Upload Images</span>
-              <p class="text-xs text-gray-400 mt-2 text-center">Surgical images, slides, or diagrams for analysis</p>
-            </div>
+    <div class="max-w-4xl mx-auto w-full">
+      <div class="bg-gradient-to-br from-white/5 via-white/5 to-white/0 border border-white/10 rounded-3xl p-8 shadow-[0_25px_60px_-40px_rgba(0,0,0,0.6)]">
+        <div class="flex items-start gap-4">
+          <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-500 flex items-center justify-center shrink-0 shadow-lg">
+            <i class="fas fa-robot text-white text-lg"></i>
           </div>
-          
-          <div class="bg-[#40414f] p-4 rounded-lg">
-            <h3 class="font-semibold mb-2 text-white flex items-center">
-              <i class="fas fa-lightbulb text-yellow-400 mr-2"></i>
-              How it works
-            </h3>
-            <ul class="text-sm text-gray-300 space-y-1">
-              <li class="flex items-start">
-                <span class="text-green-400 mr-2">•</span>
-                <span>Upload medical documents or images</span>
-              </li>
-              <li class="flex items-start">
-                <span class="text-green-400 mr-2">•</span>
-                <span>Ask questions about surgical techniques or cases</span>
-              </li>
-              <li class="flex items-start">
-                <span class="text-green-400 mr-2">•</span>
-                <span>Receive personalized training recommendations</span>
-              </li>
-            </ul>
+          <div>
+            <h2 class="text-2xl font-bold mb-2 text-white">Medical Training Assistant</h2>
+            <p class="text-sm text-white/70 mb-6">Upload surgical documents, slides, or case studies to receive personalized training recommendations.</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="welcome-card bg-gradient-to-br from-[#2a2d3a] to-[#1d1f2a] border border-white/10 rounded-2xl p-5 flex flex-col items-center text-center">
+            <i class="fas fa-file-pdf text-3xl mb-3 text-red-400"></i>
+            <span class="font-semibold text-white">Upload PDF/DOCX</span>
+            <p class="text-xs text-white/60 mt-2">Case studies, surgical reports, or training materials</p>
+          </div>
+          <div class="welcome-card bg-gradient-to-br from-[#2a2d3a] to-[#1d1f2a] border border-white/10 rounded-2xl p-5 flex flex-col items-center text-center">
+            <i class="fas fa-images text-3xl mb-3 text-sky-400"></i>
+            <span class="font-semibold text-white">Upload Images</span>
+            <p class="text-xs text-white/60 mt-2">Surgical images, slides, or diagrams for analysis</p>
+          </div>
+        </div>
+
+        <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+            <div class="text-xs uppercase tracking-widest text-white/50">Step 1</div>
+            <div class="mt-2 text-sm text-white">Upload documents or images</div>
+          </div>
+          <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+            <div class="text-xs uppercase tracking-widest text-white/50">Step 2</div>
+            <div class="mt-2 text-sm text-white">Ask about techniques or cases</div>
+          </div>
+          <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+            <div class="text-xs uppercase tracking-widest text-white/50">Step 3</div>
+            <div class="mt-2 text-sm text-white">Receive tailored recommendations</div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-  
+  </main>
+
   <!-- Input Area -->
-  <div class="px-6 py-4 border-t border-gray-600 bg-[#202123]">
-    <div class="max-w-3xl mx-auto flex items-center gap-3">
+  <footer class="px-6 py-4 border-t border-white/10 bg-[#161821]/95 backdrop-blur">
+    <div class="max-w-4xl mx-auto flex items-center gap-3">
       <div class="relative flex-1">
-        <input 
-          id="prompt" 
-          type="text" 
-          placeholder="Send a message..." 
-          class="w-full bg-[#40414F] text-white p-4 rounded-lg border-none focus:outline-none"
+        <input
+          id="prompt"
+          type="text"
+          placeholder="Send a message..."
+          class="w-full bg-white/10 text-white p-4 rounded-2xl border border-white/10 focus:outline-none"
         />
-        <button id="sendBtn" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white">
+        <button id="sendBtn" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/70 hover:text-white">
           <i class="fa-solid fa-paper-plane"></i>
         </button>
       </div>
-      <button class="upload-btn bg-gradient-to-r from-green-600 to-teal-500 hover:from-green-700 hover:to-teal-600 text-white px-4 py-4 rounded-lg font-medium">
+      <button class="upload-btn bg-gradient-to-r from-indigo-500 to-pink-500 hover:from-indigo-600 hover:to-pink-600 text-white px-4 py-4 rounded-2xl font-medium shadow-lg">
         <i class="fa-solid fa-paperclip"></i>
       </button>
     </div>
-    <p class="text-xs text-center text-gray-500 mt-2">MedMentor AI can make mistakes. Consider checking important information.</p>
-  </div>
+    <p class="text-xs text-center text-white/40 mt-2">MedMentor AI can make mistakes. Consider checking important information.</p>
+  </footer>
 
   <script>
     const API_BASE = "https://medpulse-backend.onrender.com";
@@ -220,7 +211,7 @@
       const chatContainer = document.getElementById('chat');
       const messageDiv = document.createElement('div');
       messageDiv.className = `flex items-start gap-4 ${role === 'user' ? 'justify-end' : ''} message-bubble`;
-      
+
       if (role === 'user') {
         messageDiv.innerHTML = `
           <div class="bg-[#10a37f] p-4 rounded-lg max-w-2xl">
@@ -240,7 +231,7 @@
           </div>
         `;
       }
-      
+
       chatContainer.appendChild(messageDiv);
       chatContainer.scrollTop = chatContainer.scrollHeight;
     }
@@ -291,7 +282,7 @@
         document.getElementById("fileInput").value = ""; // Clear file input
       }
     }
-    
+
     // Setup event listeners
     document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('sendBtn').addEventListener('click', sendMessage);
@@ -300,12 +291,12 @@
           sendMessage();
         }
       });
-      
+
       // Trigger file input when upload button is clicked
       document.querySelector('.upload-btn').addEventListener('click', () => {
         document.getElementById('fileInput').click();
       });
-      
+
       // Handle file uploads
       document.getElementById('fileInput').addEventListener('change', function() {
         if (this.files.length > 0) {
@@ -314,7 +305,7 @@
           appendMessage("user", `📁 Uploaded ${fileType} file: ${fileName}`);
         }
       });
-      
+
       // Add welcome message upload cards functionality
       document.querySelectorAll('.welcome-card').forEach(card => {
         card.addEventListener('click', () => {
