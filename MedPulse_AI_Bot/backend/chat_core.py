@@ -20,8 +20,8 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 # Enhanced user data storage
 USER_DATA = {
-    "Ishaan": {
-        "name": "Ishaan",
+    "Siva": {
+        "name": "Siva",
         "college": "AIIMS Delhi",
         "specialization": "Cardiothoracic Surgery",
         "simulations_completed": 7,
@@ -34,8 +34,8 @@ USER_DATA = {
         "weak_areas": ["artery clamping", "anastomosis techniques"],
         "recent_simulations": ["CABG", "Valve Repair", "Aortic Reconstruction"]
     },
-    "Jyothika": {
-        "name": "Jyothika",
+    "Likhith": {
+        "name": "Likhith",
         "college": "CMC Vellore",
         "specialization": "Neurosurgery",
         "simulations_completed": 5,
