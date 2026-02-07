@@ -56,17 +56,24 @@ def process_uploaded_files(uploaded_files):
     
     for file in uploaded_files:
         try:
-            with tempfile.NamedTemporaryFile(delete=False, suffix=file.name) as tmp:
-                tmp.write(file.getvalue())
+            file_name = getattr(file, "filename", None) or getattr(file, "name", "upload")
+            if hasattr(file, "file"):
+                file.file.seek(0)
+                raw_bytes = file.file.read()
+            else:
+                raw_bytes = file.getvalue()
+
+            with tempfile.NamedTemporaryFile(delete=False, suffix=file_name) as tmp:
+                tmp.write(raw_bytes)
                 tmp_path = tmp.name
             
-            if file.name.endswith('.pdf'):
+            if file_name.endswith('.pdf'):
                 reader = PdfReader(tmp_path)
                 text = " ".join([page.extract_text() for page in reader.pages])
-            elif file.name.endswith('.docx'):
+            elif file_name.endswith('.docx'):
                 doc = Document(tmp_path)
                 text = "\n".join([para.text for para in doc.paragraphs])
-            elif file.name.endswith('.csv'):
+            elif file_name.endswith('.csv'):
                 with open(tmp_path, 'r') as f:
                     reader = csv.reader(f)
                     text = "\n".join([",".join(row) for row in reader])
@@ -74,10 +81,10 @@ def process_uploaded_files(uploaded_files):
                 with open(tmp_path, 'r') as f:
                     text = f.read()
             
-            medical_knowledge += f"\n\n[From {file.name}]:\n{text[:5000]}..."  # Truncate long docs
+            medical_knowledge += f"\n\n[From {file_name}]:\n{text[:5000]}..."  # Truncate long docs
             os.unlink(tmp_path)
         except Exception as e:
-            logger.error(f"Error processing {file.name}: {str(e)}")
+            logger.error(f"Error processing {getattr(file, 'filename', getattr(file, 'name', 'upload'))}: {str(e)}")
     
     return medical_knowledge
 
@@ -147,7 +154,7 @@ def generate_medical_response(message, user_data, history, medical_context):
     """
     
     response = client.chat.completions.create(
-        model="gpt-4-turbo",
+        model=os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
         messages=[{"role": "system", "content": prompt}],
         temperature=0.3,
         max_tokens=500
@@ -191,4 +198,3 @@ def generate_reply(user_id, prompt, uploaded_files=[]):
     except Exception as e:
         logger.error(f"Error generating reply: {str(e)}")
         return "⚠️ Our surgical team is currently in the OR. Please try again later."
-
