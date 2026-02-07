@@ -8,7 +8,7 @@ VIDEO DEMO - https://youtu.be/WxPbSelgTWY?si=HzvrkJzdvNcQ7JHr
 
 🌐 Main Website: https://med-pulse-ai-training-platform.vercel.app
 
-🤖 AI Chatbot: https://medimentor-two.vercel.app
+🤖 AI Chatbot: https://medpulse-aibot-frontend.vercel.app/
 
 🕶 VR Surgical Simulator: https://medical-vr.vercel.app
 

@@ -97,7 +97,7 @@ export default function ChatbotPage({ onBackToDashboard }) {
                   </div>
                   <div className="mt-6">
                     <a
-                      href="https://medimentor-two.vercel.app"
+                      href="https://medpulse-aibot-frontend.vercel.app/"
                       target="_blank"
                       rel="noreferrer"
                       className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-3 text-sm font-semibold text-white shadow-md hover:shadow-lg transition"
