@@ -1,5 +1,5 @@
 import { User, Play, Bot, TrendingUp, Trophy, Clock, Star, MessageCircle, BarChart3, Activity, Target, Zap, Award, CalendarDays } from "lucide-react";
-import ProjectInfoCard from "./ProjectInfoCard";
+// ProjectInfoCard removed — duplicate content is kept inline in this file
 import useAuthUser from "../hooks/useAuthUser";
 import { isAdminEmail } from "../constants/admin";
 
@@ -139,7 +139,7 @@ export default function Dashboard({ onStartSimulation, onLogout, onOpenAdmin, on
           </div>
         </section>
 
-        <ProjectInfoCard />
+        {/* ProjectInfoCard removed — inline About section above already provides this content */}
 
         {/* ANIMATED STAT CARDS */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
