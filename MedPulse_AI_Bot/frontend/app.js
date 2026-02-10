@@ -35,7 +35,7 @@ async function sendMessage() {
     }
 
     const data = await res.json();
-    console.log("Parsed JSON response:", data);
+    console.log("API response:", data);
 
     const replyText =
       data?.reply ||
