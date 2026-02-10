@@ -274,7 +274,16 @@
           body: formData
         });
         const data = await res.json();
-        appendMessage("assistant", data.reply);
+        console.log("API response:", data);
+
+        const replyText =
+          data?.reply ||
+          data?.response ||
+          data?.message ||
+          data?.result ||
+          "AI assistant temporarily unavailable";
+
+        appendMessage("assistant", replyText);
       } catch (err) {
         appendMessage("assistant", "❌ Error contacting MedMentor AI API");
       } finally {
