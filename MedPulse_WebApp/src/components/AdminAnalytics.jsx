@@ -1,20 +1,51 @@
 import { ArrowLeft, ShieldCheck, Users, UserCheck, BarChart3, Activity } from "lucide-react";
 import useAuthUser from "../hooks/useAuthUser";
+import { useState, useEffect } from "react";
+import { db } from "../firebase";
+import { collection, query, orderBy, limit, getDocs } from "firebase/firestore";
 
 export default function AdminAnalytics({ onBackToDashboard }) {
   const { user } = useAuthUser();
+  const [registeredUsers, setRegisteredUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const mockUsers = [
-    { email: "alex.taylor@medsim.edu", uid: "uid_1a2b3c", completed: true },
-    { email: "priya.shah@medsim.edu", uid: "uid_4d5e6f", completed: true },
-    { email: "sam.chen@medsim.edu", uid: "uid_7g8h9i", completed: false },
-    { email: "maria.gomez@medsim.edu", uid: "uid_0j1k2l", completed: true },
-    { email: "jamie.park@medsim.edu", uid: "uid_3m4n5o", completed: false }
-  ];
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const usersRef = collection(db, "users");
+      const q = query(usersRef, orderBy("createdAt", "desc"), limit(100));
 
-  const totalUsers = mockUsers.length;
-  const completedUsers = mockUsers.filter((u) => u.completed).length;
+      try {
+        const querySnapshot = await getDocs(q);
+        const users = querySnapshot.docs.map((doc) => {
+          const data = doc.data() || {};
+          return {
+            email: data.email || data.userEmail || "no-email"
+          };
+        });
+        setRegisteredUsers(users);
+      } catch (orderedErr) {
+        try {
+          const querySnapshot = await getDocs(usersRef);
+          const users = querySnapshot.docs.map((doc) => {
+            const data = doc.data() || {};
+            return {
+              email: data.email || data.userEmail || "no-email"
+            };
+          });
+          setRegisteredUsers(users);
+        } catch (unorderedErr) {
+          console.error("Error fetching users:", unorderedErr);
+          setRegisteredUsers([]);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
 
+    fetchUsers();
+  }, []);
+
+  const totalUsers = registeredUsers.length;
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
       <header className="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-b border-gray-200/50 shadow-sm z-50">
@@ -56,6 +87,48 @@ export default function AdminAnalytics({ onBackToDashboard }) {
             <p className="text-lg text-gray-600">Operational insights across all users and simulations</p>
           </div>
 
+          {/* Debug panel (visible in admin UI) */}
+          <div className="max-w-3xl mx-auto p-4 rounded-lg bg-yellow-50 border border-yellow-100">
+            <div className="flex items-center justify-between mb-2">
+              <div className="text-sm font-semibold">Admin Debug</div>
+              <div className="text-xs text-gray-500">Visible only to admins</div>
+            </div>
+            <div className="text-xs text-gray-700">
+              <div>Loading: {String(loading)}</div>
+              <div>Error: {error || "none"}</div>
+              <div>Users fetched: {totalUsers}</div>
+              <div className="mt-2">
+                <div className="font-medium text-sm">Logs:</div>
+                <div className="text-xs text-gray-600">
+                  {debugLines.slice(-6).map((l, i) => (
+                    <div key={i}>{l}</div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Debug panel (visible in admin UI) */}
+          <div className="max-w-3xl mx-auto p-4 rounded-lg bg-yellow-50 border border-yellow-100">
+            <div className="flex items-center justify-between mb-2">
+              <div className="text-sm font-semibold">Admin Debug</div>
+              <div className="text-xs text-gray-500">Visible only to admins</div>
+            </div>
+            <div className="text-xs text-gray-700">
+              <div>Loading: {String(loading)}</div>
+              <div>Error: {error || "none"}</div>
+              <div>Users fetched: {totalUsers}</div>
+              <div className="mt-2">
+                <div className="font-medium text-sm">Logs:</div>
+                <div className="text-xs text-gray-600">
+                  {debugLines.slice(-6).map((l, i) => (
+                    <div key={i}>{l}</div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
           <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-white/80 border border-gray-200 rounded-3xl p-6 shadow-sm">
               <div className="flex items-center justify-between mb-4">
@@ -68,6 +141,19 @@ export default function AdminAnalytics({ onBackToDashboard }) {
                 </div>
               </div>
               <p className="text-sm text-gray-500">Registered learners on the platform</p>
+            </div>
+
+            <div className="bg-white/80 border border-gray-200 rounded-3xl p-6 shadow-sm">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <p className="text-sm text-gray-500">Total Sessions</p>
+                  <p className="text-3xl font-bold text-gray-900">—</p>
+                </div>
+                <div className="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center">
+                  <UserCheck className="text-emerald-600" size={22} />
+                </div>
+              </div>
+              <p className="text-sm text-gray-500">Active sessions tracked</p>
             </div>
 
             <div className="bg-white/80 border border-gray-200 rounded-3xl p-6 shadow-sm">
@@ -98,47 +184,24 @@ export default function AdminAnalytics({ onBackToDashboard }) {
           </section>
 
           <section className="bg-white/80 border border-gray-200 rounded-3xl p-8 shadow-sm">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900">User Directory</h2>
-                <p className="text-sm text-gray-500">Email and UID overview (mock data)</p>
-              </div>
-              <div className="flex items-center space-x-2 text-sm text-gray-500">
-                <BarChart3 size={16} />
-                <span>Updated today</span>
-              </div>
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">Registered Users</h2>
+              <p className="text-sm text-gray-500 mt-1">All registered email accounts</p>
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="text-xs uppercase tracking-wide text-gray-500 border-b">
-                    <th className="py-3">Email</th>
-                    <th className="py-3">UID</th>
-                    <th className="py-3">Completed</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {mockUsers.map((userItem) => (
-                    <tr key={userItem.uid} className="border-b last:border-none">
-                      <td className="py-4 text-sm text-gray-800">{userItem.email}</td>
-                      <td className="py-4 text-sm text-gray-500">{userItem.uid}</td>
-                      <td className="py-4">
-                        <span
-                          className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                            userItem.completed
-                              ? "bg-emerald-100 text-emerald-700"
-                              : "bg-amber-100 text-amber-700"
-                          }`}
-                        >
-                          {userItem.completed ? "Yes" : "No"}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            {loading ? (
+              <div className="py-8 text-center text-gray-500">Loading users...</div>
+            ) : registeredUsers.length === 0 ? (
+              <div className="py-8 text-center text-gray-500">No users registered yet.</div>
+            ) : (
+              <div className="space-y-2 max-h-96 overflow-y-auto">
+                {registeredUsers.map((userItem, idx) => (
+                  <div key={idx} className="py-3 px-4 bg-gray-50 rounded-lg text-sm text-gray-700 border border-gray-100 hover:bg-blue-50 transition">
+                    {userItem.email}
+                  </div>
+                ))}
+              </div>
+            )}
           </section>
         </div>
       </main>

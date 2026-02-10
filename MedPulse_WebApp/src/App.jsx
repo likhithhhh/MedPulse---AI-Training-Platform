@@ -8,8 +8,7 @@ import SimulationSelector, { SimulationView } from "./components/SimulationSelec
 import AdminDashboard from "./pages/AdminDashboard";
 import ChatbotPage from "./components/ChatbotPage";
 import { auth, googleProvider, facebookProvider } from "./firebase";
-import { signInWithPopup } from "firebase/auth";
-import { signOut } from "firebase/auth";
+import { signInWithPopup, signOut, signInAnonymously, deleteUser } from "firebase/auth";
 import { isAdminEmail } from "./constants/admin";
 import authVisual from "./assets/vr-surgical.png";
 
@@ -65,18 +64,53 @@ const handleBackToSelector = () => {
   setSelectedSimulation(null);
 };
   const handleLogout = async () => {
-  try {
-    await signOut(auth);
-    alert("Logged out successfully!");
-    window.history.pushState({}, "", "/");
-    setCurrentPage('auth'); // Return to auth page
-  } catch (error) {
-    alert("Error logging out: " + error.message);
-  }
-};
+    try {
+      const current = auth.currentUser;
 
-  const handleGuestAccess = () => {
-    goToDashboard();
+      if (current) {
+        // If anonymous user, delete the anonymous account
+        if (current.isAnonymous) {
+          try {
+            await deleteUser(current);
+          } catch (err) {
+            console.warn("Warning: could not delete anonymous account:", err.message);
+          }
+        }
+      }
+
+      // Sign out all users (both anonymous and authenticated)
+      await signOut(auth);
+
+      // Clear all local and session storage
+      try {
+        localStorage.clear();
+      } catch (err) {
+        console.warn("Could not clear localStorage", err);
+      }
+      try {
+        sessionStorage.clear();
+      } catch (err) {
+        console.warn("Could not clear sessionStorage", err);
+      }
+
+      // Redirect to login page  
+      window.history.pushState({}, "", "/login");
+      setCurrentPage('auth');
+    } catch (error) {
+      console.error("Logout error:", error);
+      alert("Error logging out: " + (error?.message || String(error)));
+    }
+  };
+
+  const handleGuestAccess = async () => {
+    try {
+      // Explicitly sign in as anonymous ONLY when guest button is clicked
+      const cred = await signInAnonymously(auth);
+      // User is now logged in as guest (anonymous); navigate to dashboard
+      goToDashboard(cred.user || auth.currentUser);
+    } catch (err) {
+      alert("Unable to start guest session: " + (err?.message || String(err)));
+    }
   };
 
   const handleSignupSuccess = () => {
@@ -132,7 +166,7 @@ if (currentPage === 'simulationView') {
 
 if (currentPage === 'admin') {
   return (
-    <AdminDashboard onBackToDashboard={handleBackToDashboard} />
+    <AdminDashboard onBackToDashboard={handleBackToDashboard} onLogout={handleLogout} />
   );
 }
 

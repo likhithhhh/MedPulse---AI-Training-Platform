@@ -1,310 +1,286 @@
-import { User, Play, Bot, TrendingUp, Trophy, Clock, Star, MessageCircle, BarChart3, Activity, Target } from "lucide-react";
-import { signOut } from "firebase/auth";
-import { auth } from "../firebase"; 
+import { User, Play, Bot, TrendingUp, Trophy, Clock, Star, MessageCircle, BarChart3, Activity, Target, Zap, Award, CalendarDays } from "lucide-react";
 import ProjectInfoCard from "./ProjectInfoCard";
 import useAuthUser from "../hooks/useAuthUser";
 import { isAdminEmail } from "../constants/admin";
 
+const AnimatedStatCard = ({ icon: Icon, label, value, trend, bgGradient, iconBg }) => (
+  <div className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${bgGradient} p-6 shadow-lg backdrop-blur-xl border border-white/20 hover:shadow-2xl transform hover:scale-105 transition-all duration-300`}>
+    <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.5),transparent_50%)]"></div>
+    <div className="relative">
+      <div className={`w-12 h-12 rounded-xl ${iconBg} flex items-center justify-center mb-4`}>
+        <Icon size={24} className="text-white" />
+      </div>
+      <div className="text-white/80 text-sm font-medium mb-2">{label}</div>
+      <div className="flex items-baseline gap-3">
+        <div className="text-3xl font-bold text-white">{value}</div>
+        {trend && <div className="text-xs text-emerald-300 flex items-center gap-1"><TrendingUp size={14} />{trend}</div>}
+      </div>
+    </div>
+  </div>
+);
+
+const CircularProgress = ({ percentage, label, color }) => (
+  <div className="flex flex-col items-center">
+    <div className="relative w-28 h-28 mb-3">
+      <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="45" fill="none" stroke="#e5e7eb" strokeWidth="4" />
+        <circle cx="50" cy="50" r="45" fill="none" stroke={color} strokeWidth="4" strokeDasharray={`${(percentage / 100) * 283} 283`} className="transition-all duration-500" />
+      </svg>
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-2xl font-bold text-gray-900">{percentage}%</div>
+        </div>
+      </div>
+    </div>
+    <div className="text-sm font-medium text-gray-600">{label}</div>
+  </div>
+);
 
 export default function Dashboard({ onStartSimulation, onLogout, onOpenAdmin, onOpenAssistant }) {
   const { user } = useAuthUser();
   const isAdmin = isAdminEmail(user?.email);
 
-
-  const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      alert("Logged out successfully!");
-      if (onLogout) {
-        onLogout(); // This will trigger the parent to show LoginForm
-      }
-    } catch (error) {
-      alert("Error logging out: " + error.message);
+  const handleLogoutClick = () => {
+    if (onLogout) {
+      onLogout();
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-      {/* Modern Header */}
-      <header className="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-b border-gray-200/50 shadow-sm z-50">
-        <div className="flex items-center justify-between px-8 py-4">
-          {/* Left Side - Project Branding */}
-          <div className="flex items-center space-x-6">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-                <Activity className="text-white" size={20} />
-              </div>
-              <div>
-                <div className="flex items-center space-x-2">
-                  <div className="text-gray-900 text-xl font-bold">Medical Simulation</div>
-                  <span className="text-[10px] uppercase tracking-wide bg-indigo-50 text-indigo-700 px-2 py-1 rounded-full font-semibold">
-                    Analytics
-                  </span>
-                </div>
-                <div className="text-gray-500 text-sm">User Performance Overview</div>
-              </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
+      {/* HEADER - CLEAN AND MINIMAL */}
+      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-2xl border-b border-slate-200 shadow-lg">
+        <div className="max-w-7xl mx-auto px-8 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-11 h-11 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-xl">
+              <Activity className="text-white" size={22} />
+            </div>
+            <div>
+              <div className="text-slate-900 font-bold text-lg">Medical Simulation</div>
+              <div className="text-slate-500 text-xs">Analytics Dashboard</div>
             </div>
           </div>
-          
-          {/* Right Side - Enhanced User Profile */}
-<div className="flex items-center space-x-8">
-  {isAdmin && onOpenAdmin && (
-    <button
-      onClick={onOpenAdmin}
-      className="hidden lg:inline-flex items-center rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50 transition"
-    >
-      Admin Panel
-    </button>
-  )}
-  {/* Quick Stats Pills */}
-  <div className="hidden lg:flex items-center space-x-4">
-    <div className="bg-blue-50 border border-blue-100 rounded-full px-4 py-2 flex items-center space-x-2">
-      <BarChart3 className="text-blue-600" size={16} />
-      <div className="text-sm">
-        <span className="text-gray-600">Sessions:</span>
-        <span className="font-bold text-blue-600 ml-1">45</span>
-      </div>
-    </div>
-    <div className="bg-emerald-50 border border-emerald-100 rounded-full px-4 py-2 flex items-center space-x-2">
-      <Star className="text-emerald-600" size={16} />
-      <div className="text-sm">
-        <span className="text-gray-600">Score:</span>
-        <span className="font-bold text-emerald-600 ml-1">9.7</span>
-      </div>
-    </div>
-    <div className="bg-amber-50 border border-amber-100 rounded-full px-4 py-2 flex items-center space-x-2">
-      <Trophy className="text-amber-600" size={16} />
-      <div className="text-sm">
-        <span className="text-gray-600">Rank:</span>
-        <span className="font-bold text-amber-600 ml-1">#9</span>
-      </div>
-    </div>
-  </div>
 
-           {/* Main User Profile Card */}
-  <div className="bg-gradient-to-r from-white to-gray-50 border border-gray-200 rounded-2xl px-6 py-3 shadow-sm">
-    <div className="flex items-center space-x-4">
-      <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center shadow-md">
-        <User className="text-white" size={20} />
-      </div>
-      <div>
-        <div className="font-bold text-lg text-gray-900">
-          {user?.displayName || user?.email || "User"}
+          <div className="flex items-center gap-6">
+            {isAdmin && onOpenAdmin && (
+              <button onClick={onOpenAdmin} className="px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium transition-all">
+                Admin Panel
+              </button>
+            )}
+            
+            <div className="h-10 w-px bg-slate-200"></div>
+            
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-lg">
+                <User size={18} className="text-white" />
+              </div>
+              <div className="hidden sm:block">
+                <div className="text-slate-900 text-sm font-medium">{user?.displayName || user?.email?.split('@')[0] || 'User'}</div>
+                <div className="text-slate-500 text-xs">{user?.email}</div>
+              </div>
+            </div>
+
+            <button onClick={handleLogoutClick} className="px-4 py-2 rounded-lg bg-red-500/80 hover:bg-red-600 text-white text-sm font-medium transition-all shadow-lg">
+              Logout
+            </button>
+          </div>
         </div>
-        <div className="text-gray-500 text-sm">{user?.email || "No email available"}</div>
-        <div className="text-gray-400 text-xs mt-1">UID: {user?.uid || "Not available"}</div>
-      </div>
-      <div className="hidden sm:block text-right">
-        <div className="text-xs text-gray-400 mb-1">Analytics</div>
-        <div className="text-sm font-semibold text-gray-700">User Performance</div>
-        <div className="text-xs text-gray-400 mt-1">Updated today</div>
-      </div>
-    </div>
-  </div>
+      </header>
 
-  {/* NEW: Logout Button */}
- <button 
-    onClick={handleLogout} // Change from onLogout to handleLogout
-    className="group bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-medium py-2 px-4 rounded-xl shadow-sm hover:shadow-md transform hover:scale-105 transition-all duration-200 flex items-center space-x-2"
-  >
-    <span className="text-sm">Logout</span>
-    <div className="w-1.5 h-1.5 bg-white rounded-full group-hover:animate-pulse"></div>
-  </button>
-</div>
-</div>
-</header>
+      {/* ANALYTICS HERO SECTION */}
+      <section className="max-w-7xl mx-auto px-8 py-12">
+        <div className="mb-8 text-center">
+          <h1 className="text-4xl font-bold text-slate-900 mb-3">User Analytics Dashboard</h1>
+          <p className="text-slate-600">Track your performance, sessions, and medical simulation progress in real time.</p>
+        </div>
 
-      {/* Main Content */}
-      <main className="pt-40 px-8 pb-8">
-        <div className="max-w-7xl mx-auto space-y-8">
-          
-          {/* Welcome Section */}
-          <div className="text-center mb-16">
-            <h1 className="text-5xl font-bold text-gray-900 mb-4">
-              Welcome back, {user?.displayName || user?.email || "there"}! 👋
-            </h1>
-            <p className="text-xl text-gray-600">Here is your analytics snapshot for today.</p>
+        {/* WELCOME SECTION */}
+        <div className="mb-8 text-center">
+          <h2 className="text-3xl font-bold text-slate-900 mb-2">Welcome back, {user?.displayName || user?.email?.split('@')[0] || 'there'}! 👋</h2>
+          <p className="text-slate-600">Here's your analytics snapshot for today.</p>
+        </div>
+
+        {/* ABOUT PLATFORM SECTION */}
+        <section className="bg-slate-100 rounded-3xl border border-slate-200 p-8 shadow-lg mb-12">
+          <div className="max-w-3xl mx-auto">
+            <h2 className="text-2xl font-bold text-slate-900 mb-4 flex items-center gap-3">
+              <BarChart3 size={28} className="text-blue-500" />
+              About Medical Simulation Platform
+            </h2>
+            <p className="text-slate-600 leading-relaxed">
+              Medical Simulation is an AI-powered medical training and surgical simulation platform built to help students practice procedures, improve clinical decisions, and gain real-world experience in a safe virtual environment. The platform combines intelligent AI guidance, immersive simulations, and performance analytics to create next-generation healthcare training.
+            </p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+              <div className="bg-slate-200 rounded-2xl p-6 border border-slate-300">
+                <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center mb-3">
+                  <Zap className="text-blue-600" size={20} />
+                </div>
+                <h3 className="text-slate-900 font-semibold mb-2">AI Medical Assistant</h3>
+                <p className="text-slate-600 text-sm">Get intelligent guidance for surgeries, cases, and medical queries.</p>
+              </div>
+              
+              <div className="bg-slate-200 rounded-2xl p-6 border border-slate-300">
+                <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center mb-3">
+                  <Activity className="text-purple-600" size={20} />
+                </div>
+                <h3 className="text-slate-900 font-semibold mb-2">VR Surgery Practice</h3>
+                <p className="text-slate-600 text-sm">Practice procedures safely in immersive virtual simulations.</p>
+              </div>
+              
+              <div className="bg-slate-200 rounded-2xl p-6 border border-slate-300">
+                <div className="w-10 h-10 bg-emerald-500/20 rounded-lg flex items-center justify-center mb-3">
+                  <TrendingUp className="text-emerald-600" size={20} />
+                </div>
+                <h3 className="text-slate-900 font-semibold mb-2">Performance Tracking</h3>
+                <p className="text-slate-600 text-sm">Monitor progress, strengths, and improvement areas in real-time.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <ProjectInfoCard />
+
+        {/* ANIMATED STAT CARDS */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          <AnimatedStatCard 
+            icon={Clock} 
+            label="Total Sessions" 
+            value="45" 
+            trend="+12 this month"
+            bgGradient="from-blue-600 to-cyan-600"
+            iconBg="bg-blue-700"
+          />
+          <AnimatedStatCard 
+            icon={Star} 
+            label="Average Score" 
+            value="9.7" 
+            trend="+0.5 avg"
+            bgGradient="from-purple-600 to-pink-600"
+            iconBg="bg-purple-700"
+          />
+          <AnimatedStatCard 
+            icon={Trophy} 
+            label="Your Rank" 
+            value="#9" 
+            trend="Top 5%"
+            bgGradient="from-amber-600 to-orange-600"
+            iconBg="bg-amber-700"
+          />
+          <AnimatedStatCard 
+            icon={Zap} 
+            label="Active Days" 
+            value="28" 
+            trend="+5 this month"
+            bgGradient="from-emerald-600 to-teal-600"
+            iconBg="bg-emerald-700"
+          />
+        </div>
+
+        {/* DATA VISUALIZATION ROW */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-12">
+          {/* Performance Progress */}
+          <div className="rounded-2xl bg-slate-100 border border-slate-300 p-8 shadow-lg hover:shadow-xl transition-all">
+            <h3 className="text-slate-900 font-semibold mb-6 flex items-center gap-2">
+              <TrendingUp size={18} /> Performance Progress
+            </h3>
+            <div className="space-y-4">
+              {[
+                { label: 'Cardiac Surgery', percent: 85, color: 'bg-blue-500' },
+                { label: 'Neuro Surgery', percent: 72, color: 'bg-purple-500' },
+                { label: 'Orthopedics', percent: 68, color: 'bg-pink-500' },
+              ].map((item, i) => (
+                <div key={i}>
+                  <div className="flex justify-between text-sm mb-2">
+                    <span className="text-slate-700">{item.label}</span>
+                    <span className="text-slate-900 font-bold">{item.percent}%</span>
+                  </div>
+                  <div className="h-2 bg-slate-300 rounded-full overflow-hidden">
+                    <div className={`h-full ${item.color} transition-all duration-500`} style={{ width: `${item.percent}%` }}></div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
-          <ProjectInfoCard />
+          {/* Score Circular Progress */}
+          <div className="rounded-2xl bg-slate-100 border border-slate-300 p-8 shadow-lg hover:shadow-xl transition-all flex flex-col items-center justify-center">
+            <h3 className="text-slate-900 font-semibold mb-6 w-full text-center flex items-center justify-center gap-2">
+              <Award size={18} /> Overall Score
+            </h3>
+            <CircularProgress percentage={82} label="Competency Level" color="#a855f7" />
+          </div>
 
-
-          {/* Progress Overview Section */}
-          <section className="bg-white/70 backdrop-blur-sm rounded-3xl shadow-sm border border-gray-200/50 p-8">
-            <div className="flex items-center mb-8">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center mr-4">
-                <TrendingUp className="text-white" size={20} />
-              </div>
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900">Analytics Overview</h2>
-                <p className="text-gray-500 text-sm">Track performance and module outcomes</p>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="group bg-gradient-to-br from-violet-500 to-purple-600 rounded-2xl p-8 text-white hover:shadow-xl transition-all duration-300 hover:-translate-y-1 w-full">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="font-bold text-lg">Completion Rate</h3>
-                  <div className="bg-white/20 rounded-xl p-3 group-hover:bg-white/30 transition-all">
-                    <Target size={20} />
-                  </div>
+          {/* Activity Timeline */}
+          <div className="rounded-2xl bg-slate-100 border border-slate-300 p-8 shadow-lg hover:shadow-xl transition-all">
+            <h3 className="text-slate-900 font-semibold mb-6 flex items-center gap-2">
+              <CalendarDays size={18} /> Activity Timeline
+            </h3>
+            <div className="space-y-3">
+              {[
+                { day: 'Today', activity: 'Completed Cardiothoracic Module', color: 'text-emerald-600' },
+                { day: 'Yesterday', activity: 'Practiced Anastomosis Technique', color: 'text-blue-600' },
+                { day: '2 days ago', activity: 'Achieved 4.8★ on Heart Bypass', color: 'text-purple-600' },
+              ].map((item, i) => (
+                <div key={i} className="flex gap-3 text-sm pb-3 border-b border-slate-300 last:border-0">
+                  <div className="text-slate-600 w-20 flex-shrink-0">{item.day}</div>
+                  <div className={`${item.color} text-xs font-medium truncate`}>{item.activity}</div>
                 </div>
-                <div className="space-y-3">
-                  <p className="text-4xl font-bold">75%</p>
-                  <p className="text-purple-100">Simulations completed</p>
-                  <div className="w-full bg-white/20 rounded-full h-2">
-                    <div className="bg-white rounded-full h-2 w-3/4"></div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="group bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl p-8 text-white hover:shadow-xl transition-all duration-300 hover:-translate-y-1 w-full">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="font-bold text-lg">Recent Modules</h3>
-                  <div className="bg-white/20 rounded-xl p-3 group-hover:bg-white/30 transition-all">
-                    <Play size={20} />
-                  </div>
-                </div>
-                <div className="space-y-3">
-                  <p className="text-2xl font-bold">Neuro, Heart</p>
-                  <p className="text-green-100">Latest completed</p>
-                  <div className="flex space-x-2">
-                    <span className="bg-white/20 px-3 py-1 rounded-full text-sm">Neurology</span>
-                    <span className="bg-white/20 px-3 py-1 rounded-full text-sm">Cardiology</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="group bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl p-8 text-white hover:shadow-xl transition-all duration-300 hover:-translate-y-1 w-full">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="font-bold text-lg">Best Performance</h3>
-                  <div className="bg-white/20 rounded-xl p-3 group-hover:bg-white/30 transition-all">
-                    <Trophy size={20} />
-                  </div>
-                </div>
-                <div className="space-y-3">
-                  <div className="flex items-center space-x-2">
-                    <p className="text-4xl font-bold">4.8</p>
-                    <Star className="text-yellow-300" size={24} />
-                  </div>
-                  <p className="text-orange-100">Heart Bypass Surgery</p>
-                  <div className="bg-white/20 px-3 py-1 rounded-full text-sm w-fit">Excellence Award</div>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* Quick Stats Section */}
-          <section className="bg-white/70 backdrop-blur-sm rounded-3xl shadow-sm border border-gray-200/50 p-8">
-            <div className="flex items-center mb-8">
-              <div className="w-10 h-10 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center mr-4">
-                <BarChart3 className="text-white" size={20} />
-              </div>
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900">Engagement Metrics</h2>
-                <p className="text-gray-500 text-sm">Weekly activity and ratings</p>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl p-6 border border-blue-100 hover:shadow-md transition-all w-full">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-bold text-lg text-gray-700">Practice Sessions</h3>
-                  <div className="bg-blue-500 rounded-xl p-2">
-                    <Clock className="text-white" size={18} />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <p className="text-3xl font-bold text-blue-600">12</p>
-                  <p className="text-gray-600 text-sm">3 surgeries attempted</p>
-                  <div className="text-xs text-green-600 font-medium">↗ +2 from last week</div>
-                </div>
-              </div>
-
-              <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-2xl p-6 border border-purple-100 hover:shadow-md transition-all w-full">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-bold text-lg text-gray-700">Average Rating</h3>
-                  <div className="bg-purple-500 rounded-xl p-2">
-                    <Star className="text-white" size={18} />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-center space-x-2">
-                    <p className="text-3xl font-bold text-purple-600">4.2</p>
-                    <div className="flex">
-                      {[1,2,3,4].map(i => <Star key={i} className="text-yellow-400 fill-current" size={16} />)}
-                      <Star className="text-gray-300" size={16} />
-                    </div>
-                  </div>
-                  <p className="text-gray-600 text-sm">Across all procedures</p>
-                  <div className="text-xs text-green-600 font-medium">↗ +0.3 improvement</div>
-                </div>
-              </div>
-
-              <div className="bg-gradient-to-br from-rose-50 to-pink-50 rounded-2xl p-6 border border-rose-100 hover:shadow-md transition-all w-full">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-bold text-lg text-gray-700">Focus Area</h3>
-                  <div className="bg-rose-500 rounded-xl p-2">
-                    <MessageCircle className="text-white" size={18} />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <p className="text-rose-600 font-bold text-lg">Tool Precision</p>
-                  <p className="text-gray-600 text-sm">Neurosurgery procedures</p>
-                  <div className="bg-rose-100 text-rose-700 px-3 py-1 rounded-full text-xs w-fit">Practice Recommended</div>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* Action Buttons Section */}
-          <section className="bg-white/70 backdrop-blur-sm rounded-3xl shadow-sm border border-gray-200/50 p-8">
-            <div className="text-center mb-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Continue Your Training</h2>
-              <p className="text-gray-600">Choose your next learning experience</p>
-            </div>
-            
-            <div className="flex flex-col lg:flex-row gap-6 justify-center items-center max-w-4xl mx-auto">
-              <button 
-                onClick={onStartSimulation}
-                className="group bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-6 px-8 rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center space-x-4 w-full lg:w-auto min-w-80"
-              >
-                <div className="bg-white/20 rounded-2xl p-4 group-hover:bg-white/30 transition-all">
-                  <Play size={24} />
-                </div>
-                <div className="text-left">
-                  <div className="text-xl font-bold">Start New Simulation</div>
-                  <div className="text-blue-100 text-sm">Launch Unity/WebGL environment</div>
-                  <div className="text-blue-200 text-xs mt-1">Recommended: Cardiac Surgery Module</div>
-                </div>
-              </button>
-
-              <button
-                onClick={onOpenAssistant}
-                className="group bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-6 px-8 rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center space-x-4 min-w-80 w-full lg:w-auto"
-              >
-                <div className="bg-white/20 rounded-2xl p-4 group-hover:bg-white/30 transition-all">
-                  <Bot size={24} />
-                </div>
-                <div className="text-left">
-                  <div className="text-xl font-bold">AI Study Assistant</div>
-                  <div className="text-purple-100 text-sm">Get personalized help & guidance</div>
-                  <div className="text-purple-200 text-xs mt-1">Ask questions, review concepts</div>
-                </div>
-              </button>
-
-            </div>
-          </section>
-
-          {/* Status Note */}
-          <div className="text-center">
-            <div className="inline-flex items-center bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-2xl px-6 py-3 text-green-800 shadow-sm">
-              <div className="w-3 h-3 bg-green-500 rounded-full mr-3 animate-pulse"></div>
-              <span className="text-sm font-medium">System Status: All services operational • Guest access enabled</span>
+              ))}
             </div>
           </div>
         </div>
-      </main>
+
+        {/* ACTION BUTTONS SECTION */}
+        <section className="mb-12">
+          <h2 className="text-2xl font-bold text-slate-900 mb-6">Continue Your Training</h2>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <button 
+              onClick={onStartSimulation}
+              className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 p-8 shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300"
+            >
+              <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.5),transparent_50%)]"></div>
+              <div className="relative flex items-center gap-6">
+                <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
+                  <Play size={32} className="text-white" />
+                </div>
+                <div className="text-left">
+                  <div className="text-xl font-bold text-white">Start New Simulation</div>
+                  <div className="text-blue-100">Launch VR Surgery Module</div>
+                </div>
+              </div>
+            </button>
+
+            <button
+              onClick={onOpenAssistant}
+              className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-600 to-pink-600 p-8 shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300"
+            >
+              <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.5),transparent_50%)]"></div>
+              <div className="relative flex items-center gap-6">
+                <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
+                  <Bot size={32} className="text-white" />
+                </div>
+                <div className="text-left">
+                  <div className="text-xl font-bold text-white">AI Study Assistant</div>
+                  <div className="text-purple-100">Get personalized guidance & help</div>
+                </div>
+              </div>
+            </button>
+          </div>
+        </section>
+
+        {/* STATUS INDICATOR */}
+        <div className="flex justify-center mb-12">
+          <div className="inline-flex items-center bg-slate-100 border border-slate-300 rounded-full px-6 py-3 shadow-lg">
+            <div className="w-3 h-3 bg-emerald-400 rounded-full mr-3 animate-pulse"></div>
+            <span className="text-slate-700 text-sm font-medium">System Status: All services operational</span>
+          </div>
+        </div>
+      </section>
+
+      {/* FOOTER PADDING */}
+      <div className="h-8"></div>
     </div>
   );
 }

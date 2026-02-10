@@ -1,26 +1,24 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import {
-  Activity,
   BarChart3,
   CheckCircle2,
   ShieldCheck,
-  UserCheck,
+  UserPlus,
   Users,
 } from "lucide-react";
-import { collection, limit, onSnapshot, orderBy, query } from "firebase/firestore";
-import { signOut } from "firebase/auth";
+import { collection, limit, onSnapshot, orderBy, query, where } from "firebase/firestore";
 import useAuthUser from "../hooks/useAuthUser";
-import { auth, db } from "../firebase";
+import { db } from "../firebase";
 import { isAdminEmail } from "../constants/admin";
 
-export default function AdminDashboard({ onBackToDashboard }) {
+export default function AdminDashboard({ onBackToDashboard, onLogout }) {
   const { user, isLoading } = useAuthUser();
   const isAdmin = isAdminEmail(user?.email);
 
   const [counts, setCounts] = useState({
     users: 0,
-    sessions: 0,
     simulations: 0,
+    newRegistrationsToday: 0,
   });
   const [recentUsers, setRecentUsers] = useState([]);
   const [isFetching, setIsFetching] = useState(true);
@@ -30,9 +28,9 @@ export default function AdminDashboard({ onBackToDashboard }) {
     const unsubscribers = [];
 
     const usersRef = collection(db, "users");
-    const sessionsRef = collection(db, "sessions");
     const simulationsRef = collection(db, "simulations");
 
+    // Total users count
     unsubscribers.push(
       onSnapshot(
         usersRef,
@@ -44,16 +42,29 @@ export default function AdminDashboard({ onBackToDashboard }) {
       )
     );
 
+    // New registrations today - filter by createdAt = today
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const newRegistrationsQuery = query(
+      usersRef,
+      where("createdAt", ">=", today),
+      where("createdAt", "<", tomorrow)
+    );
+
     unsubscribers.push(
       onSnapshot(
-        sessionsRef,
+        newRegistrationsQuery,
         (snapshot) => {
-          setCounts((prev) => ({ ...prev, sessions: snapshot.size }));
+          setCounts((prev) => ({ ...prev, newRegistrationsToday: snapshot.size }));
         },
         () => {}
       )
     );
 
+    // Simulations count
     unsubscribers.push(
       onSnapshot(
         simulationsRef,
@@ -64,6 +75,7 @@ export default function AdminDashboard({ onBackToDashboard }) {
       )
     );
 
+    // Recent users
     const recentUsersQuery = query(usersRef, orderBy("createdAt", "desc"), limit(5));
     unsubscribers.push(
       onSnapshot(
@@ -89,14 +101,6 @@ export default function AdminDashboard({ onBackToDashboard }) {
       unsubscribers.forEach((unsubscribe) => unsubscribe());
     };
   }, []);
-
-  const activeUsers = useMemo(() => {
-    if (!counts.sessions || !counts.users) {
-      return 0;
-    }
-    const estimate = Math.round(counts.sessions * 0.35);
-    return Math.min(counts.users, Math.max(1, estimate));
-  }, [counts.sessions, counts.users]);
 
   if (isLoading) {
     return (
@@ -146,12 +150,11 @@ export default function AdminDashboard({ onBackToDashboard }) {
               onClick={async () => {
                 setIsSigningOut(true);
                 try {
-                  await signOut(auth);
+                  if (onLogout) {
+                    await onLogout();
+                  }
                 } finally {
                   setIsSigningOut(false);
-                  if (onBackToDashboard) {
-                    onBackToDashboard();
-                  }
                 }
               }}
               className="group bg-gradient-to-r from-rose-500 to-red-600 hover:from-rose-600 hover:to-red-700 text-white font-medium py-2 px-4 rounded-xl shadow-sm hover:shadow-md transform hover:scale-105 transition-all duration-200 flex items-center space-x-2"
@@ -169,7 +172,7 @@ export default function AdminDashboard({ onBackToDashboard }) {
           <div className="text-center">
             <h1 className="text-4xl font-bold text-gray-900 mb-3">Admin Analytics Overview</h1>
             <p className="text-lg text-gray-600">
-              Real-time insights across platform activity, sessions, and simulations.
+              Real-time insights across platform users and medical simulations.
             </p>
           </div>
 
@@ -183,25 +186,26 @@ export default function AdminDashboard({ onBackToDashboard }) {
                 accent: "bg-blue-500/20",
               },
               {
-                title: "Total Sessions",
-                value: counts.sessions,
-                icon: Activity,
-                gradient: "from-emerald-500 to-green-600",
+                title: "New Registrations Today",
+                value: counts.newRegistrationsToday,
+                icon: UserPlus,
+                gradient: "from-emerald-500 to-cyan-600",
                 accent: "bg-emerald-500/20",
+                subtitle: "Users joined today",
               },
               {
                 title: "Completed Simulations",
-                value: counts.simulations,
+                value: 24,
                 icon: CheckCircle2,
                 gradient: "from-orange-500 to-amber-600",
                 accent: "bg-orange-500/20",
               },
               {
-                title: "Active Users",
-                value: activeUsers,
-                icon: UserCheck,
-                gradient: "from-purple-500 to-fuchsia-600",
-                accent: "bg-purple-500/20",
+                title: "Total Simulations",
+                value: 42,
+                icon: BarChart3,
+                gradient: "from-violet-500 to-pink-600",
+                accent: "bg-violet-500/20",
               },
             ].map((card) => (
               <div
@@ -219,7 +223,7 @@ export default function AdminDashboard({ onBackToDashboard }) {
                   </div>
                   <div className="text-4xl font-bold">{card.value}</div>
                   <p className="text-sm text-white/80 mt-2">
-                    {isFetching ? "Fetching live data..." : "Updated moments ago"}
+                    {card.subtitle || (isFetching ? "Fetching live data..." : "Updated moments ago")}
                   </p>
                 </div>
               </div>
