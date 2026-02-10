@@ -38,10 +38,9 @@ async function sendMessage() {
     console.log("API response:", data);
 
     const replyText =
+      data?.response ||   // <-- PRIMARY
       data?.reply ||
-      data?.response ||
       data?.message ||
-      data?.result ||
       "AI assistant temporarily unavailable";
 
     appendMessage("assistant", replyText);
