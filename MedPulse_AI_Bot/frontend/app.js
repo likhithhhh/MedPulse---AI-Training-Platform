@@ -35,7 +35,15 @@ async function sendMessage() {
     }
 
     const data = await res.json();
-    appendMessage("assistant", data.reply);
+    console.log('Parsed JSON response:', data);
+
+    const replyText =
+      data?.reply ||
+      data?.response ||
+      data?.message ||
+      "AI assistant temporarily unavailable";
+
+    appendMessage("assistant", replyText);
   } catch (err) {
     appendMessage("assistant", "⚠️ Error contacting server. Try again in a few seconds.");
   }
